@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: b2a8c62737c5f4843853eb0690731281
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2417893746845299352
+    second: "sadecekag\u0131t_0"
+  - first:
+      213: 621859982712248856
+    second: "sadecekag\u0131t_1"
+  - first:
+      213: 7837818538108278982
+    second: "sadecekag\u0131t_2"
+  - first:
+      213: -8314331076645583136
+    second: "sadecekag\u0131t_3"
+  - first:
+      213: 3819325728230948831
+    second: "sadecekag\u0131t_4"
+  - first:
+      213: 844129944969151952
+    second: "sadecekag\u0131t_5"
+  - first:
+      213: 2995095914299696686
+    second: "sadecekag\u0131t_6"
+  - first:
+      213: -3818720999902810826
+    second: "sadecekag\u0131t_7"
+  - first:
+      213: -8671778653198821544
+    second: "sadecekag\u0131t_8"
+  - first:
+      213: 4799458625909496983
+    second: "sadecekag\u0131t_9"
+  - first:
+      213: -3244200330886029458
+    second: "sadecekag\u0131t_10"
+  - first:
+      213: 1172152036730595421
+    second: "sadecekag\u0131t_11"
+  - first:
+      213: 6543393639759000690
+    second: "sadecekag\u0131t_12"
+  - first:
+      213: 6284304731036205554
+    second: "sadecekag\u0131t_13"
+  - first:
+      213: 8444967417054016319
+    second: "sadecekag\u0131t_14"
+  - first:
+      213: -1134973058056753240
+    second: "sadecekag\u0131t_15"
+  - first:
+      213: -5848188380368538532
+    second: "sadecekag\u0131t_16"
+  - first:
+      213: 2028426777442588763
+    second: "sadecekag\u0131t_17"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_0"
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 59
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86dc5a2a27ae17ed0800000000000000
+      internalID: -2417893746845299352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_1"
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 50
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81a18990c5a41a800800000000000000
+      internalID: 621859982712248856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_2"
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 34
+        width: 29
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c85ae11f6685cc60800000000000000
+      internalID: 7837818538108278982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_3"
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 40
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e68c8fdfef8d9c80800000000000000
+      internalID: -8314331076645583136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_4"
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 32
+        width: 23
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdf37b0a388f00530800000000000000
+      internalID: 3819325728230948831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_5"
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 56
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d5082a66b3f6bb00800000000000000
+      internalID: 844129944969151952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_6"
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 30
+        width: 44
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e26ae088dd7b09920800000000000000
+      internalID: 2995095914299696686
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_7"
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 47
+        width: 12
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63de778ab7d210bc0800000000000000
+      internalID: -3818720999902810826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_8"
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 49
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 857d44d8247a7a780800000000000000
+      internalID: -8671778653198821544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_9"
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 30
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79c158f013a1b9240800000000000000
+      internalID: 4799458625909496983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_10"
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 4
+        width: 28
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6f5551dcf84af2d0800000000000000
+      internalID: -3244200330886029458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_11"
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 36
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d58e31c2112544010800000000000000
+      internalID: 1172152036730595421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_12"
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 24
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 274b263d8ddceca50800000000000000
+      internalID: 6543393639759000690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_13"
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 10
+        width: 28
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f148b17bd5563750800000000000000
+      internalID: 6284304731036205554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_14"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 16
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f33b0495f1d823570800000000000000
+      internalID: 8444967417054016319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_15"
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 5
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8af63ec5404cf30f0800000000000000
+      internalID: -1134973058056753240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_16"
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 12
+        width: 12
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c54f09037af07dea0800000000000000
+      internalID: -5848188380368538532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "sadecekag\u0131t_17"
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 1
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b581b52386b662c10800000000000000
+      internalID: 2028426777442588763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      "sadecekag\u0131t_0": -2417893746845299352
+      "sadecekag\u0131t_1": 621859982712248856
+      "sadecekag\u0131t_10": -3244200330886029458
+      "sadecekag\u0131t_11": 1172152036730595421
+      "sadecekag\u0131t_12": 6543393639759000690
+      "sadecekag\u0131t_13": 6284304731036205554
+      "sadecekag\u0131t_14": 8444967417054016319
+      "sadecekag\u0131t_15": -1134973058056753240
+      "sadecekag\u0131t_16": -5848188380368538532
+      "sadecekag\u0131t_17": 2028426777442588763
+      "sadecekag\u0131t_2": 7837818538108278982
+      "sadecekag\u0131t_3": -8314331076645583136
+      "sadecekag\u0131t_4": 3819325728230948831
+      "sadecekag\u0131t_5": 844129944969151952
+      "sadecekag\u0131t_6": 2995095914299696686
+      "sadecekag\u0131t_7": -3818720999902810826
+      "sadecekag\u0131t_8": -8671778653198821544
+      "sadecekag\u0131t_9": 4799458625909496983
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
