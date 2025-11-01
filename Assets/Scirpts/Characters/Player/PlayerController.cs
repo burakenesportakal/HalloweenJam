@@ -70,10 +70,10 @@ public class PlayerController : Entity
             originalGravityScale = rb.gravityScale;
         }
         
-        // SpriteRenderer'ı başlangıç durumuna ayarla
+        // SpriteRenderer flipX'i sıfırla (transform rotation kullanıyoruz)
         if (spriteRenderer != null)
         {
-            spriteRenderer.flipX = false; // Sağa bakıyor başlangıçta
+            spriteRenderer.flipX = false;
         }
     }
 
@@ -338,16 +338,6 @@ public class PlayerController : Entity
             
             transform.localPosition = new Vector3(xOffset, yOffset, transform.localPosition.z);
             transform.localRotation = Quaternion.identity;
-            
-            // SpriteRenderer flip'ini düzgün ayarla
-            if (spriteRenderer != null)
-            {
-                // Enemy'nin facing direction'ına göre player'ın sprite'ını ayarla
-                // Enemy sağa bakıyorsa (facingDirection = 1), player enemy'nin arkasında (solda) olmalı
-                // Enemy sola bakıyorsa (facingDirection = -1), player enemy'nin arkasında (sağda) olmalı
-                // Player her zaman enemy'nin arkasında, o yüzden enemy'nin tersine bakmalı
-                spriteRenderer.flipX = (attachedEnemy.facingDirection > 0);
-            }
         }
     }
 

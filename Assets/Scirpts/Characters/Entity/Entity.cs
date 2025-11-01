@@ -109,15 +109,8 @@ public class Entity : MonoBehaviour
 
     public void Flip()
     {
-        // SpriteRenderer varsa flipX kullan, yoksa rotation kullan
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.flipX = !spriteRenderer.flipX;
-        }
-        else
-        {
-            transform.Rotate(0, 180, 0);
-        }
+        // Transform'u rotate et (collider ve sprite'ın da dönmesi için)
+        transform.Rotate(0, 180, 0);
         
         facingRight = !facingRight;
         facingDirection *= -1;

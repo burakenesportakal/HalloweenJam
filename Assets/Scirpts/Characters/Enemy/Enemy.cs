@@ -23,7 +23,7 @@ public class Enemy : Entity
     [SerializeField] protected GameObject projectilePrefab;
     [SerializeField] protected Transform firePoint;
     [SerializeField] protected float projectileSpeed = 10f;
-    [SerializeField] protected float attackCooldown = 2f;
+    [SerializeField] private float attackCooldown = 2f;
     private float lastAttackTime = 0f;
     private bool isAttacking = false;
 
@@ -175,12 +175,8 @@ public class Enemy : Entity
         // Player attack range içindeyse saldır ve dur
         if (distanceToPlayer <= attackRange)
         {
-            // Ateş etme kontrolü
-            if (Time.time >= lastAttackTime + attackCooldown)
-            {
-                FireProjectile();
-                lastAttackTime = Time.time;
-            }
+            // Ateş etme kontrolü (cooldown kontrolü FireProjectile içinde)
+            FireProjectile();
             
             // Attack range içindeyken dur
             SetVelocity(0, rb.linearVelocity.y);
@@ -211,6 +207,9 @@ public class Enemy : Entity
     {
         if (projectilePrefab == null || firePoint == null) return;
         if (isDead) return;
+        
+        // Cooldown kontrolü
+        if (Time.time < lastAttackTime + attackCooldown) return;
 
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         
@@ -250,6 +249,8 @@ public class Enemy : Entity
             anim.SetTrigger("attack");
         }
 
+        // Cooldown'u güncelle
+        lastAttackTime = Time.time;
         isAttacking = true;
     }
 

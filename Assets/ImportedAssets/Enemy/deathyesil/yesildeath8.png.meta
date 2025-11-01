@@ -103,12 +103,12 @@ TextureImporter:
       name: yesildeath8_0
       rect:
         serializedVersion: 2
-        x: 15
-        y: 7
-        width: 31
-        height: 7
+        x: 0
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b6e0ab631539b3f4295bc9160736727f
     internalID: 0
     vertices: []
     indices: 
