@@ -95,14 +95,15 @@ namespace HalloweenJam.UI
         /// <summary>
         /// Ayarlar menüsünü gösterir
         /// </summary>
-        public void ShowSettings()
+        /// <param name="fromPauseMenu">Pause menüsünden mi geldi (true) yoksa ana menüden mi (false)</param>
+        public void ShowSettings(bool fromPauseMenu = false)
         {
             HideAllPanels();
             if (settingsPanel != null)
                 settingsPanel.SetActive(true);
             
             if (settingsManager != null)
-                settingsManager.OnPanelShown();
+                settingsManager.OnPanelShown(fromPauseMenu);
         }
 
         /// <summary>
@@ -123,6 +124,11 @@ namespace HalloweenJam.UI
         /// </summary>
         public void ShowPauseMenu()
         {
+            // Settings panel'ini gizle (eğer açıksa)
+            if (settingsPanel != null)
+                settingsPanel.SetActive(false);
+            
+            // Pause panel'ini göster
             if (pausePanel != null)
                 pausePanel.SetActive(true);
             

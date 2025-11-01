@@ -29,6 +29,8 @@ namespace HalloweenJam.UI
         [SerializeField] private float defaultMusicVolume = 0.8f;
         [SerializeField] private float defaultSFXVolume = 1f;
 
+        private bool cameFromPauseMenu = false; // Pause menüsünden mi geldi?
+
         private void Awake()
         {
             // Referansları otomatik bul
@@ -132,16 +134,29 @@ namespace HalloweenJam.UI
 
         private void OnBackButtonClicked()
         {
-            // Ana menüye dön
+            // Nereden geldiysek oraya dön
             if (UIManager.Instance != null)
-                UIManager.Instance.ShowMainMenu();
+            {
+                if (cameFromPauseMenu)
+                {
+                    // Pause menüsünden geldiyse pause menüsüne dön
+                    UIManager.Instance.ShowPauseMenu();
+                }
+                else
+                {
+                    // Ana menüden geldiyse ana menüye dön
+                    UIManager.Instance.ShowMainMenu();
+                }
+            }
         }
 
         /// <summary>
         /// Panel gösterildiğinde çağrılır
         /// </summary>
-        public void OnPanelShown()
+        /// <param name="fromPauseMenu">Pause menüsünden mi geldi</param>
+        public void OnPanelShown(bool fromPauseMenu = false)
         {
+            cameFromPauseMenu = fromPauseMenu;
             LoadSettings();
         }
 

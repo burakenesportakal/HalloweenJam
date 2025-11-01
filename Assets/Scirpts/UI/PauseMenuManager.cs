@@ -63,9 +63,9 @@ namespace HalloweenJam.UI
 
         private void OnSettingsButtonClicked()
         {
-            // Ayarlar menüsüne geç
+            // Ayarlar menüsüne geç (pause menüsünden geldiğini belirt)
             if (UIManager.Instance != null)
-                UIManager.Instance.ShowSettings();
+                UIManager.Instance.ShowSettings(fromPauseMenu: true);
         }
 
         private void OnMainMenuButtonClicked()
