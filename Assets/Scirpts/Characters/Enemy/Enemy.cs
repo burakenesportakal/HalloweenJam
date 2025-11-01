@@ -2,154 +2,344 @@ using UnityEngine;
 
 public class Enemy : Entity
 {
-    public Enemy_IdleState idleState;
-    public Enemy_MoveState moveState;
-    public Enemy_AttackState attackState;
-    public Enemy_BattleState battleState;
-    public Enemy_DeadState deadState;
+    [Header("Movement")]
+    [SerializeField] protected float moveSpeed = 3f;
+    [SerializeField] protected float patrolRange = 5f;
+    [SerializeField] protected Transform patrolPointA;
+    [SerializeField] protected Transform patrolPointB;
+    private Vector3 startPosition;
+    private bool movingToB = true;
 
-    [Header("Battle details")]
-    public float battleMoveSpeed = 3;
-    public float attackDistance = 2;
-    public float battleTimeDuration = 5;
-    public float minRetreatDistance = 1;
-    public Vector2 retreatVelocity;
-
-    [Header("Movement details")]
-    public float idleTime = 2;
-    public float moveSpeed = 1.4f;
-    [Range(0, 2)]
-    public float moveAnimSpeedMultiplier = 1;
-
-    [Header("Player detection")]
-    [SerializeField] private LayerMask whatIsPlayer;
-    [SerializeField] private Transform playerCheck;
-    [SerializeField] private float playerCheckDistance = 10;
-    public Transform player { get; private set; }
-
-    [Header("Control System")]
+    [Header("Player Detection")]
+    [SerializeField] protected float detectionRange = 8f;
+    [SerializeField] protected float attackRange = 6f;
+    [SerializeField] protected LayerMask playerLayer;
+    [SerializeField] protected Transform detectionPoint;
+    private PlayerController detectedPlayer = null;
     private bool isControlled = false;
-    private Player controllingPlayer;
-    private bool hasAttackedWhileControlled = false;
-    public override void EntityDeath()
-    {
-        base.EntityDeath();
+    private PlayerController controllingPlayer = null;
 
-        stateMachine.ChangeState(deadState);
-    }
-    private void HandlePlayerDeath()
-    {
-        stateMachine.ChangeState(idleState);
-    }
-    public void TryEnterBattleState(Transform player)
-    {
-        if (stateMachine.currentState == battleState || stateMachine.currentState == attackState)
-            return;
+    [Header("Attack")]
+    [SerializeField] protected GameObject projectilePrefab;
+    [SerializeField] protected Transform firePoint;
+    [SerializeField] protected float projectileSpeed = 10f;
+    [SerializeField] protected float attackCooldown = 2f;
+    private float lastAttackTime = 0f;
+    private bool isAttacking = false;
 
-        this.player = player;
-        stateMachine.ChangeState(battleState);
-    }
-    public Transform GetPlayerReference()
-    {
-        if (player == null)
-            player = PlayerDetected().transform;
+    [Header("Enemy Type")]
+    [SerializeField] protected int enemyType = 0; // 0, 1, 2 - farklı renkler ve güçler için
 
-        return player;
-    }
-    public RaycastHit2D PlayerDetected()
-    {
-        RaycastHit2D hit =
-            Physics2D.Raycast(playerCheck.position, Vector2.right * facingDirection, playerCheckDistance, whatIsPlayer | whatIsGround);
+    [Header("Ground Check")]
+    [SerializeField] protected LayerMask groundLayer;
+    [SerializeField] protected float groundCheckDistance = 0.2f;
+    [SerializeField] protected Transform groundCheckPoint;
+    protected bool isGrounded = false;
 
-        if (hit.collider == null || hit.collider.gameObject.layer != LayerMask.NameToLayer("Player"))
-            return default;
-
-        return hit;
-    }
-    public void SetControlled(bool controlled, Player player)
+    protected override void Awake()
     {
-        isControlled = controlled;
-        controllingPlayer = player;
-        hasAttackedWhileControlled = false; // Reset when control changes
+        base.Awake();
+        startPosition = transform.position;
+    }
+
+    protected override void Start()
+    {
+        base.Start();
         
-        // Update animator parameter
-        if (anim != null)
+        // Patrol point'ler yoksa oluştur
+        if (patrolPointA == null || patrolPointB == null)
         {
-            anim.SetBool("isControlled", controlled);
+            CreatePatrolPoints();
         }
-        
-        if (controlled)
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        // Ölü enemy hiçbir şey yapmaz
+        if (isDead) return;
+
+        // Kontrol ediliyorsa AI çalışmasın
+        if (isControlled)
         {
-            // Disable AI state machine
-            stateMachine.OffStateMachine();
+            return;
+        }
+
+        CheckGround();
+        HandlePlayerDetection();
+        
+        // Player detect edildiyse saldır
+        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        {
+            HandleRangedAttack();
         }
         else
         {
-            // Re-enable state machine if not dead
-            Entity_Health health = GetComponent<Entity_Health>();
-            if (health != null && !health.IsDead())
+            HandlePatrol();
+        }
+    }
+
+    private void CreatePatrolPoints()
+    {
+        GameObject pointA = new GameObject("PatrolPointA");
+        pointA.transform.position = startPosition + Vector3.left * patrolRange;
+        pointA.transform.SetParent(transform.parent);
+        patrolPointA = pointA.transform;
+
+        GameObject pointB = new GameObject("PatrolPointB");
+        pointB.transform.position = startPosition + Vector3.right * patrolRange;
+        pointB.transform.SetParent(transform.parent);
+        patrolPointB = pointB.transform;
+    }
+
+    protected virtual void CheckGround()
+    {
+        if (groundCheckPoint == null) return;
+
+        isGrounded = Physics2D.Raycast(groundCheckPoint.position, Vector2.down, groundCheckDistance, groundLayer);
+    }
+
+    protected virtual void HandlePatrol()
+    {
+        if (patrolPointA == null || patrolPointB == null) return;
+
+        // Patrol mantığı - sadece A ve B noktaları arasında gezin
+        Vector3 targetPoint = movingToB ? patrolPointB.position : patrolPointA.position;
+        Vector2 direction = (targetPoint - transform.position).normalized;
+
+        // Hedefe yakınsa yön değiştir
+        if (Vector2.Distance(transform.position, targetPoint) < 0.5f)
+        {
+            movingToB = !movingToB;
+        }
+
+        // Hareket et
+        if (isGrounded && !isAttacking)
+        {
+            SetVelocity(direction.x * moveSpeed, rb.linearVelocity.y);
+            HandleFlip(direction.x);
+        }
+
+        // Animasyon
+        if (anim != null)
+        {
+            anim.SetBool("isMoving", Mathf.Abs(direction.x) > 0.1f && !isAttacking);
+        }
+    }
+
+    protected virtual void HandlePlayerDetection()
+    {
+        if (detectionPoint == null) return;
+
+        // Player'ı detection range içinde ara
+        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(detectionPoint.position, detectionRange, playerLayer);
+        detectedPlayer = null;
+
+        foreach (var col in nearbyColliders)
+        {
+            PlayerController player = col.GetComponent<PlayerController>();
+            if (player == null || player.IsDead()) continue;
+
+            // Player'ın enemy'nin önünde mi kontrol et (sırtı dönükse göremez)
+            Vector2 toPlayer = (player.transform.position - transform.position);
+            
+            // Mesafe kontrolü
+            float distance = toPlayer.magnitude;
+            if (distance > detectionRange) continue;
+            
+            toPlayer.Normalize();
+            
+            // Enemy'nin önünde mi kontrol et
+            // facingDirection = 1 ise sağa, -1 ise sola bakıyor
+            // toPlayer.x > 0 ise player sağda, toPlayer.x < 0 ise player solda
+            // Enemy'nin önünde olması için: toPlayer.x * facingDirection > 0
+            float dotProduct = toPlayer.x * facingDirection;
+            
+            // dotProduct > 0 = player enemy'nin önünde (görebilir)
+            // dotProduct <= 0 = player enemy'nin arkasında (göremez)
+            if (dotProduct > 0)
             {
-                // State machine will be re-enabled if needed
+                detectedPlayer = player;
+                break;
             }
         }
     }
-    
-    public void SetHasAttackedWhileControlled(bool hasAttacked)
+
+    protected virtual void HandleRangedAttack()
     {
-        hasAttackedWhileControlled = hasAttacked;
+        if (detectedPlayer == null || detectedPlayer.IsDead()) return;
+
+        float distanceToPlayer = Vector2.Distance(transform.position, detectedPlayer.transform.position);
+
+        // Player attack range içindeyse saldır ve dur
+        if (distanceToPlayer <= attackRange)
+        {
+            // Ateş etme kontrolü
+            if (Time.time >= lastAttackTime + attackCooldown)
+            {
+                FireProjectile();
+                lastAttackTime = Time.time;
+            }
+            
+            // Attack range içindeyken dur
+            SetVelocity(0, rb.linearVelocity.y);
+            isAttacking = true;
+            
+            // Animasyon
+            if (anim != null)
+            {
+                anim.SetBool("isMoving", false);
+            }
+        }
+        else
+        {
+            // Attack range dışındaysa player'a doğru takip et
+            Vector2 directionToPlayer = (detectedPlayer.transform.position - transform.position).normalized;
+            
+            if (isGrounded && !isAttacking)
+            {
+                SetVelocity(directionToPlayer.x * moveSpeed, rb.linearVelocity.y);
+                HandleFlip(directionToPlayer.x);
+            }
+
+            isAttacking = false;
+        }
     }
-    
-    public bool HasAttackedWhileControlled()
+
+    public virtual void FireProjectile()
     {
-        return hasAttackedWhileControlled;
+        if (projectilePrefab == null || firePoint == null) return;
+        if (isDead) return;
+
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        
+        Vector2 direction;
+        
+        // Eğer kontrol ediliyorsa, önüne ateş et (facing direction)
+        if (isControlled)
+        {
+            direction = Vector2.right * facingDirection;
+        }
+        // Eğer kontrol edilmiyorsa, player'a doğru ateş et
+        else
+        {
+            direction = detectedPlayer != null 
+                ? (detectedPlayer.transform.position - firePoint.position).normalized 
+                : Vector2.right * facingDirection;
+        }
+
+        Projectile projScript = projectile.GetComponent<Projectile>();
+        if (projScript != null)
+        {
+            int damage = GetAttackDamage();
+            projScript.Initialize(direction, projectileSpeed, damage, enemyType);
+        }
+        else
+        {
+            Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
+            if (projRb != null)
+            {
+                projRb.linearVelocity = direction * projectileSpeed;
+            }
+        }
+
+        // Ateş animasyonu trigger'ı
+        if (anim != null)
+        {
+            anim.SetTrigger("attack");
+        }
+
+        isAttacking = true;
+    }
+
+    protected virtual int GetAttackDamage()
+    {
+        // Enemy tipine göre hasar (0: 10, 1: 15, 2: 20)
+        return 10 + (enemyType * 5);
+    }
+
+    public int GetEnemyType()
+    {
+        return enemyType;
+    }
+
+    public float GetMoveSpeed()
+    {
+        return moveSpeed;
+    }
+
+    public void SetControlled(bool controlled, PlayerController player)
+    {
+        isControlled = controlled;
+        controllingPlayer = player;
+
+        if (controlled)
+        {
+            // Kontrol edildiğinde AI durdur
+            detectedPlayer = null;
+            SetVelocity(0, rb.linearVelocity.y);
+        }
     }
 
     public bool IsControlled()
     {
         return isControlled;
     }
-    
-    public Player GetControllingPlayer()
+
+    public override void Die()
     {
-        return controllingPlayer;
+        base.Die();
+        
+        // Player detection'ı durdur
+        detectedPlayer = null;
+        isControlled = false;
+        controllingPlayer = null;
     }
 
-    public bool IsDead()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        Entity_Health health = GetComponent<Entity_Health>();
-        return health != null && health.IsDead();
-    }
-
-    protected override void Update()
-    {
-        // Don't run AI state machine if controlled
-        if (isControlled)
+        // Player enemy'nin üstüne çıktığında kontrol et
+        PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+        if (player != null && !isDead && !isControlled)
         {
-            HandleCollisionDetection();
-            return;
+            // Player enemy'nin üstünde mi kontrol et
+            if (collision.contacts[0].point.y > transform.position.y)
+            {
+                // Player enemy'nin üstünde ve ayrılırsa enemy ölür
+                // Bu kontrol DetachFromEnemy'de yapılıyor
+            }
         }
-
-        base.Update();
     }
 
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(playerCheck.position, new Vector3(playerCheck.position.x + (facingDirection * playerCheckDistance), playerCheck.position.y));
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(playerCheck.position, new Vector3(playerCheck.position.x + (facingDirection * attackDistance), playerCheck.position.y));
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(playerCheck.position, new Vector3(playerCheck.position.x + (facingDirection * minRetreatDistance), playerCheck.position.y));
+        // Detection range gizmo (sarı çember)
+        if (detectionPoint != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(detectionPoint.position, detectionRange);
+        }
 
-    }
-    private void OnEnable()
-    {
-        Player.OnPlayerDeath += HandlePlayerDeath;
-    }
-    private void OnDisable()
-    {
-        Player.OnPlayerDeath -= HandlePlayerDeath;
+        // Attack range gizmo (kırmızı çember)
+        if (detectionPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(detectionPoint.position, attackRange);
+        }
+
+        // Patrol range gizmo (mavi çember) - kaldırıldı
+        // Gizmos.color = Color.blue;
+        // Gizmos.DrawWireSphere(startPosition, patrolRange);
+
+        // Detection ray gizmo (yeşil çizgi)
+        if (detectionPoint != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(detectionPoint.position, detectionPoint.position + Vector3.right * facingDirection * detectionRange);
+        }
     }
 }
+

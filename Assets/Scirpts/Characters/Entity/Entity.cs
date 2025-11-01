@@ -1,113 +1,142 @@
-using System;
-using System.Collections;
 using UnityEngine;
+
 public class Entity : MonoBehaviour
 {
-    public Animator anim {  get; private set; }
-    public Rigidbody2D rb { get; private set; }
-    protected StateMachine stateMachine;
+    [Header("Components")]
+    public Animator anim { get; protected set; }
+    public Rigidbody2D rb { get; protected set; }
+    public CapsuleCollider2D capsuleCollider { get; protected set; }
+    public SpriteRenderer spriteRenderer { get; protected set; }
 
-    private bool facingRight = true;
-    public int facingDirection { get; private set; } = 1;
+    [Header("Health")]
+    [SerializeField] protected int maxHealth = 100;
+    protected int currentHealth;
+    protected bool isDead = false;
 
-    [Header("Collision Detection")]
-    [SerializeField] protected LayerMask whatIsGround;
-    [SerializeField] private float groundCheckDistance;
-    [SerializeField] private float wallCheckDistance;
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform wallCheck;
-    public bool groundDetected { get; private set; }
-    public bool wallDetected { get; private set; }
-    
-    [Header("Enemy Detection")]
-    [SerializeField] protected LayerMask whatIsEnemy;
-    [SerializeField] private float enemyCheckDistance;
-    [SerializeField] private Transform enemyCheck;
-    public bool enemyDetected { get; private set; }
-    public RaycastHit2D enemyHit { get; private set; }
-
-    private bool isKnocked;
-    private Coroutine knockbackCoroutine;
+    [Header("Facing")]
+    protected bool facingRight = true;
+    public int facingDirection { get; protected set; } = 1;
 
     protected virtual void Awake()
     {
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        stateMachine = new StateMachine();
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        currentHealth = maxHealth;
+        
+        // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
+        transform.rotation = Quaternion.identity;
+        
+        // Facing direction'ı başlangıç değerine ayarla
+        facingRight = true;
+        facingDirection = 1;
     }
 
-    protected virtual void Start() { }
+    protected virtual void Start()
+    {
+        // Override in derived classes
+    }
+
     protected virtual void Update()
     {
-        HandleCollisionDetection();
-        stateMachine.UpdateActiveState();
+        // Override in derived classes
     }
-    public void CurrentStateAnimationTrigger()
-    {
-        stateMachine.currentState.AnimationTrigger();
-    }
-    public virtual void EntityDeath()
-    {
 
-    }
-    public void ReciveKnockback(Vector2 knockback, float duraiton)
+    public virtual void TakeDamage(int damage)
     {
-        if (knockback == null)
-            StopCoroutine(knockbackCoroutine);
+        if (isDead) return;
 
-        knockbackCoroutine = StartCoroutine(KnockbackCoroutine(knockback, duraiton));
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
-    private IEnumerator KnockbackCoroutine(Vector2 knockback, float duraiton)
+
+    public virtual void Heal(int amount)
     {
-        isKnocked = true;
-        rb.linearVelocity = knockback;
+        if (isDead) return;
 
-        yield return new WaitForSeconds(duraiton);
-
-        rb.linearVelocity = Vector2.zero;
-        isKnocked = false;
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
     }
-    public void SetVelocity(float xVelocity, float yVelocity)
+
+    public virtual void Die()
     {
-        if (isKnocked) return;
+        if (isDead) return;
 
-        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
-        HandleFlip(xVelocity);
+        isDead = true;
+        currentHealth = 0;
+
+        // Animasyon trigger'ı
+        if (anim != null)
+        {
+            anim.SetTrigger("death");
+        }
+
+        // Collider'ı trigger yap (ölü enemy'ye girilebilir)
+        if (capsuleCollider != null)
+        {
+            capsuleCollider.isTrigger = true;
+        }
+
+        // Rigidbody'yi durdur
+        if (rb != null)
+        {
+            rb.simulated = false;
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
+        }
     }
-    public void HandleFlip(float xVelocity)
+
+    public bool IsDead()
     {
-        if (xVelocity > 0 && facingRight == false) Flip();
-        else if (xVelocity < 0 && facingRight) Flip();
+        return isDead;
     }
+
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
+    }
+
     public void Flip()
     {
-        transform.Rotate(0, 180, 0);
-        facingRight = !facingRight;
-        facingDirection = facingDirection * -1;
-    }
-    public void HandleCollisionDetection()
-    {
-        groundDetected = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
-        wallDetected = Physics2D.Raycast(wallCheck.position, Vector2.right, wallCheckDistance, whatIsGround);
-        
-        if (enemyCheck != null)
+        // SpriteRenderer varsa flipX kullan, yoksa rotation kullan
+        if (spriteRenderer != null)
         {
-            enemyHit = Physics2D.Raycast(enemyCheck.position, Vector2.right * facingDirection, enemyCheckDistance, whatIsEnemy);
-            enemyDetected = enemyHit.collider != null && enemyHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy");
+            spriteRenderer.flipX = !spriteRenderer.flipX;
         }
+        else
+        {
+            transform.Rotate(0, 180, 0);
+        }
+        
+        facingRight = !facingRight;
+        facingDirection *= -1;
+    }
+
+    public void HandleFlip(float xVelocity)
+    {
+        if (xVelocity > 0 && !facingRight) Flip();
+        else if (xVelocity < 0 && facingRight) Flip();
+    }
+
+    public void SetVelocity(float xVelocity, float yVelocity)
+    {
+        if (rb == null) return;
+        rb.linearVelocity = new Vector2(xVelocity, yVelocity);
     }
 
     protected virtual void OnDrawGizmos()
     {
-        Gizmos.DrawLine(groundCheck.position, groundCheck.position + new Vector3(0, -groundCheckDistance));
-        Gizmos.DrawLine(wallCheck.position, wallCheck.position + new Vector3(wallCheckDistance * facingDirection, 0));
-        
-        if (enemyCheck != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(enemyCheck.position, enemyCheck.position + new Vector3(enemyCheckDistance * facingDirection, 0));
-            Gizmos.color = Color.white;
-        }
-
+        // Override in derived classes
     }
 }
