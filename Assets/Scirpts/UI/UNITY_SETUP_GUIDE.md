@@ -2,6 +2,40 @@
 
 Bu rehber, oyununuz için tüm UI elementlerini Unity'de nasıl kuracağınızı adım adım anlatır.
 
+---
+
+## 🎨 ADIM 0: Font ve Renk Ayarlama
+
+Tüm UI text'lerinize font ve renk uygulamak için Editor Window kullanacağız:
+
+### 0.1 Font Asset Oluşturma (İlk Kez)
+1. Font dosyanızı (TTF/OTF) Unity'ye import edin
+2. **Project** panelinde font dosyasına **sağ tık** → **Create → TextMeshPro → Font Asset**
+3. Font Asset oluşturuldu (aynı klasörde görünecek)
+
+### 0.2 Editor Window'u Açma
+1. Unity Editor → **Window → UI Style Manager**
+2. Pencere açılacak
+
+### 0.3 Font ve Renk Uygulama
+1. **Font Asset** alanına oluşturduğunuz Font Asset'i sürükleyin
+2. **Text Color** alanından text rengini seçin
+3. **(Opsiyonel) Root Transform**: Eğer sadece belirli bir alt hiyerarşideki text'leri güncellemek istiyorsanız, root GameObject'i sürükleyin (boş bırakırsanız tüm scene'deki text'ler güncellenir)
+4. **Include Inactive Objects**: Pasif objeleri de dahil etmek için tıklayın (genelde kapalı kalabilir)
+5. **"Font + Renk Uygula"** butonuna basın
+6. Tüm TextMeshProUGUI text'ler otomatik güncellenir!
+
+### 0.4 Ayrı Ayrı Uygulama (İsterseniz)
+- **"Sadece Font"**: Sadece font'u değiştirmek için
+- **"Sadece Renk"**: Sadece rengi değiştirmek için
+
+### ⚠️ Önemli Notlar:
+- Font Asset olmadan font uygulanamaz (önce Font Asset oluşturmalısınız)
+- Bu window her zaman açık kalabilir, ihtiyaç duydukça kullanabilirsiniz
+- Text'leri değiştirdikten sonra bir daha uygulamak için tekrar butona basın
+
+---
+
 ## 📋 Oluşturulan Scriptler
 
 1. **UIManager.cs** - Merkezi UI yönetimi
