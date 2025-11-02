@@ -669,6 +669,11 @@ public class PlayerController : Entity
         return carriedEnemy;
     }
 
+    public bool IsControllingEnemy()
+    {
+        return isControllingEnemy;
+    }
+
     private void UpdateAnimations()
     {
         if (anim == null) return;
