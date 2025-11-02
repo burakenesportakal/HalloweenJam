@@ -16,7 +16,7 @@ namespace HalloweenJam.UI
         [SerializeField] private GameObject pausePanel;
 
         [Header("Game UI")]
-        [SerializeField] private AlarmUI alarmUI;
+        [SerializeField] private HealthUI healthUI;
 
         [Header("Canvas")]
         [SerializeField] private Canvas mainCanvas;
@@ -33,6 +33,9 @@ namespace HalloweenJam.UI
             if (Instance == null)
             {
                 Instance = this;
+                // UIManager DontDestroyOnLoad kullanmıyor - her sahne kendi UI'sını yönetir
+                // UI Sahnesi: MenuCanvas (MainMenu, Settings, Storyboard)
+                // Oyun Sahnesi: GameCanvas (PauseMenu, HealthUI)
             }
             else
             {
@@ -65,16 +68,19 @@ namespace HalloweenJam.UI
 
         private void ValidateReferences()
         {
+            // UI Sahnesi panelleri (null olabilir - oyun sahnesinde yok)
             if (mainMenuPanel == null)
-                Debug.LogWarning("UIManager: MainMenuPanel referansı atanmamış!");
+                Debug.LogWarning("UIManager: MainMenuPanel referansı atanmamış! (UI sahnesinde olmalı)");
             if (settingsPanel == null)
-                Debug.LogWarning("UIManager: SettingsPanel referansı atanmamış!");
+                Debug.LogWarning("UIManager: SettingsPanel referansı atanmamış! (UI sahnesinde olmalı)");
             if (storyboardPanel == null)
-                Debug.LogWarning("UIManager: StoryboardPanel referansı atanmamış!");
+                Debug.LogWarning("UIManager: StoryboardPanel referansı atanmamış! (UI sahnesinde olmalı)");
+            
+            // Oyun sahnesi UI elementleri (null olabilir - UI sahnesinde yok)
             if (pausePanel == null)
-                Debug.LogWarning("UIManager: PausePanel referansı atanmamış!");
-            if (alarmUI == null)
-                Debug.LogWarning("UIManager: AlarmUI referansı atanmamış!");
+                Debug.LogWarning("UIManager: PausePanel referansı atanmamış! (Oyun sahnesinde olmalı)");
+            if (healthUI == null)
+                Debug.LogWarning("UIManager: HealthUI referansı atanmamış! (Oyun sahnesinde olmalı)");
         }
 
         #region Panel Management
@@ -158,42 +164,15 @@ namespace HalloweenJam.UI
 
         #endregion
 
-        #region Alarm UI
+        #region Health UI
 
         /// <summary>
-        /// Alarm UI'ı gösterir (alarm çaldığında)
-        /// </summary>
-        public void ShowAlarmUI()
-        {
-            if (alarmUI != null)
-                alarmUI.Show();
-        }
-
-        /// <summary>
-        /// Alarm UI'ı gizler (alarm bittiğinde)
-        /// </summary>
-        public void HideAlarmUI()
-        {
-            if (alarmUI != null)
-                alarmUI.Hide();
-        }
-
-        /// <summary>
-        /// Alarm sayacını günceller
-        /// </summary>
-        public void UpdateAlarmTimer(float remainingTime)
-        {
-            if (alarmUI != null)
-                alarmUI.UpdateTimer(remainingTime);
-        }
-
-        /// <summary>
-        /// Can barını günceller
+        /// Can barını günceller (sol üstte her zaman görünür)
         /// </summary>
         public void UpdateHealth(int currentHealth, int maxHealth)
         {
-            if (alarmUI != null)
-                alarmUI.UpdateHealth(currentHealth, maxHealth);
+            if (healthUI != null)
+                healthUI.UpdateHealth(currentHealth, maxHealth);
         }
 
         #endregion

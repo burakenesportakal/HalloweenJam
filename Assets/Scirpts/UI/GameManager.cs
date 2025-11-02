@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HalloweenJam.UI
 {
@@ -22,6 +23,8 @@ namespace HalloweenJam.UI
 
         [Header("Settings")]
         [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
+        [SerializeField] private int uiSceneIndex = 1; // UI sahnesi build index
+        [SerializeField] private int gameSceneIndex = 2; // Oyun sahnesi build index
 
         private void Awake()
         {
@@ -38,10 +41,34 @@ namespace HalloweenJam.UI
             }
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            // Oyun başladığında ana menüyü göster
-            ShowMainMenu();
+            // Sahne yüklendiğinde kontrol et
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // UI sahnesinde ana menüyü göster
+            if (scene.buildIndex == uiSceneIndex)
+            {
+                ShowMainMenu();
+            }
+            // Oyun sahnesinde oyunu başlat
+            else if (scene.buildIndex == gameSceneIndex)
+            {
+                CurrentState = GameState.Playing;
+                Time.timeScale = 1f;
+                
+                // Tüm menü panellerini gizle (oyun sahnesinde yok zaten ama güvenlik için)
+                if (UIManager.Instance != null)
+                    UIManager.Instance.HideAllPanels();
+            }
         }
 
         private void Update()
@@ -73,7 +100,7 @@ namespace HalloweenJam.UI
         }
 
         /// <summary>
-        /// Oyunu başlatır (storyboard'dan sonra)
+        /// Oyunu başlatır (storyboard'dan sonra) - Oyun sahnesine geçer
         /// </summary>
         public void StartGame()
         {
@@ -84,8 +111,10 @@ namespace HalloweenJam.UI
             if (UIManager.Instance != null)
                 UIManager.Instance.HideAllPanels();
 
-            Debug.Log("Game Started!");
-            // Burada oyun başlangıç logic'i eklenebilir
+            // Oyun sahnesine geç
+            SceneManager.LoadScene(gameSceneIndex);
+
+            Debug.Log("Game Started! Loading game scene...");
         }
 
         /// <summary>
@@ -119,7 +148,7 @@ namespace HalloweenJam.UI
         }
 
         /// <summary>
-        /// Ana menüye döner (pause menüsünden)
+        /// Ana menüye döner (pause menüsünden) - UI sahnesine geçer
         /// </summary>
         public void ReturnToMainMenu()
         {
@@ -129,8 +158,10 @@ namespace HalloweenJam.UI
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.HidePauseMenu();
-                UIManager.Instance.ShowMainMenu();
             }
+
+            // UI sahnesine dön (ShowMainMenu otomatik çağrılacak - OnSceneLoaded'da)
+            SceneManager.LoadScene(uiSceneIndex);
 
             // Oyun durumunu sıfırla (ileride restart için)
             ResetGame();

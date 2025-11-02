@@ -43,7 +43,7 @@ Tüm UI text'lerinize font ve renk uygulamak için Editor Window kullanacağız:
 3. **SettingsManager.cs** - Ayarlar menüsü
 4. **StoryboardManager.cs** - Hikaye ekranı
 5. **PauseMenuManager.cs** - Duraklatma menüsü
-6. **AlarmUI.cs** - Alarm sayacı + Can barı (sadece alarmda görünür)
+6. **HealthUI.cs** - Health UI (sol üstte her zaman görünür can ikonları)
 7. **GameManager.cs** - Oyun durumu yönetimi
 8. **AudioManager.cs** - Ses sistemi
 
@@ -301,81 +301,55 @@ Tüm UI text'lerinize font ve renk uygulamak için Editor Window kullanacağız:
 
 ---
 
-## 🎯 ADIM 7: Alarm UI (AlarmUI)
+## 🎯 ADIM 7: Health UI (Sol Üstte Her Zaman Görünür)
 
 ### Container Oluşturma
-1. **MainCanvas** altında → Sağ tık → **Create Empty** → İsmi: **"AlarmUI"**
-2. AlarmUI altında → **UI → Panel** → İsmi: **"AlarmContainer"**
-3. **AlarmContainer** RectTransform ayarları:
-   - **Anchor**: Stretch-Stretch (tüm ekranı kaplasın)
-   - **Left, Right, Top, Bottom**: `0`
-   - Bu sayede container tüm ekranı kaplar ve içerik ortada görünür
-4. **AlarmContainer** başlangıçta gizli olmalı (Inspector'da Active: false)
+1. **MainCanvas** altında → Sağ tık → **Create Empty** → İsmi: **"HealthUI"**
+2. **HealthUI** GameObject'ini seç → Inspector'da **RectTransform** ayarları:
+   - **Anchor**: Top-Left (sol üst köşe)
+   - **Position**: X = `50`, Y = `-50` (sol üstten biraz içeride)
+   - **Pivot**: `0, 1` (sol üst)
 
-### UI Elementleri
+### Health Icons Oluşturma
 
-1. **AlarmTimerText** (Text - TextMeshPro):
-   - AlarmContainer altında → **UI → Text - TextMeshPro**
-   - İsmi: **"AlarmTimerText"**
-   - **RectTransform** ayarları:
-     - **Anchor**: Center, Top
-     - **Position**: X = `0`, Y = `-80`
-     - **Pivot**: `0.5, 1` (üstten orta)
-   - **Font Size**: `48`
-   - **Color**: Kırmızı
-   - **Alignment**: Center, Top
-   - **Text**: "ALARM: 5" (sayaç gösterimi)
+**Yöntem: Horizontal Layout Group ile (Önerilen):**
 
-2. **HealthIcons** (Image Array - Hollow Knight maskeleri gibi):
+a. **HealthIconsContainer** oluştur:
+- **HealthUI** altında → Sağ tık → **Create Empty** → İsmi: **"HealthIconsContainer"**
+- **RectTransform** ayarları:
+  - **Anchor**: Top-Left (parent ile hizalı)
+  - **Position**: X = `0`, Y = `0`
+  - **Size**: `200 x 80` (başlangıç boyutu, Layout Group genişletecek)
+  - **Pivot**: `0, 1` (sol üst)
 
-   **Yöntem 1: Horizontal Layout Group ile (Önerilen - Daha Kolay):**
-   
-   a. **HealthIconsContainer** oluştur:
-   - AlarmContainer altında → Sağ tık → **Create Empty** → İsmi: **"HealthIconsContainer"**
-   - **RectTransform** ayarları:
-     - **Anchor**: Center (middle-center)
-     - **Position**: X = `0`, Y = `50`
-     - **Size**: `200 x 80` (başlangıç boyutu, Layout Group genişletecek)
-     - **Pivot**: `0.5, 0.5` (ortada)
-   
-   b. **Horizontal Layout Group** ekle:
-   - HealthIconsContainer'ı seç → Inspector'da **Add Component** → **Layout → Horizontal Layout Group**
-   - **Horizontal Layout Group** ayarları:
-     - **Spacing**: `15` (ikonlar arası boşluk - daha fazla görünürlük için)
-     - **Child Alignment**: `Middle Center` (ortada hizala)
-     - **Child Control Size**: ✅ **Width** işaretle, ✅ **Height** işaretle (ikonlar aynı boyutta olur)
-     - **Child Force Expand**: ❌ **Width** tiksiz, ❌ **Height** tiksiz (otomatik genişlemesin)
-     - **Padding**: Left = `0`, Right = `0`, Top = `0`, Bottom = `0`
-   
-   c. **Content Size Fitter** ekle (ÖNEMLİ - Container boyutunu otomatik ayarlar):
-   - HealthIconsContainer'a **Add Component** → **Layout → Content Size Fitter**
-   - **Horizontal Fit**: `Preferred Size` (içeriğe göre genişlik ayarla)
-   - **Vertical Fit**: `Preferred Size` (içeriğe göre yükseklik ayarla)
-   
-   d. **3 Kalp İkonu** oluştur:
-   - HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon1"**
-   - HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon2"**
-   - HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon3"**
-   - Her ikonun **RectTransform** ayarları:
-     - **Anchor**: Middle-Left (veya Middle-Center)
-     - **Size**: `70 x 70` (daha büyük ve görünür)
-     - **Pivot**: `0.5, 0.5`
-   - Her ikona kalp sprite'ını ekleyin (Inspector → Image → Sprite)
-   - **Image Type**: Simple
-   - **Preserve Aspect**: ✅ İşaretle (orantı korunur)
-   
-   **Yöntem 2: Manuel Dizilim (Layout Group olmadan - Sadece referans için):**
-   - AlarmContainer altında → 3 tane **UI → Image** oluştur
-   - İsimler: **"HeartIcon1"**, **"HeartIcon2"**, **"HeartIcon3"**
-   - **Position**: Yatay dizilim (örnek: X = -80, 0, 80, Y = 50)
-   - **Size**: Her ikon `70 x 70`
-   - Her ikona kalp sprite'ını ekleyin (Inspector'da)
+b. **Horizontal Layout Group** ekle:
+- HealthIconsContainer'ı seç → Inspector'da **Add Component** → **Layout → Horizontal Layout Group**
+- **Horizontal Layout Group** ayarları:
+  - **Spacing**: `15` (ikonlar arası boşluk)
+  - **Child Alignment**: `Upper Left` (sol üstten başla)
+  - **Child Control Size**: ✅ **Width** işaretle, ✅ **Height** işaretle (ikonlar aynı boyutta olur)
+  - **Child Force Expand**: ❌ **Width** tiksiz, ❌ **Height** tiksiz (otomatik genişlemesin)
+  - **Padding**: Left = `0`, Right = `0`, Top = `0`, Bottom = `0`
+
+c. **Content Size Fitter** ekle (ÖNEMLİ - Container boyutunu otomatik ayarlar):
+- HealthIconsContainer'a **Add Component** → **Layout → Content Size Fitter**
+- **Horizontal Fit**: `Preferred Size` (içeriğe göre genişlik ayarla)
+- **Vertical Fit**: `Preferred Size` (içeriğe göre yükseklik ayarla)
+
+d. **3 Kalp İkonu** oluştur:
+- HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon1"**
+- HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon2"**
+- HealthIconsContainer altında → **UI → Image** → İsmi: **"HeartIcon3"**
+- Her ikonun **RectTransform** ayarları:
+  - **Size**: `70 x 70` (veya istediğiniz boyut)
+  - **Pivot**: `0.5, 0.5`
+- Her ikona kalp sprite'ını ekleyin (Inspector → Image → Sprite)
+- **Image Type**: Simple
+- **Preserve Aspect**: ✅ İşaretle (orantı korunur)
 
 ### Script Bağlama
-1. **AlarmUI** GameObject'ini seç → Inspector'da **Add Component** → **AlarmUI.cs** scriptini ekle
+1. **HealthUI** GameObject'ini seç → Inspector'da **Add Component** → **HealthUI.cs** scriptini ekle
 2. Script'te referansları ata:
-   - **Alarm Container** → AlarmContainer GameObject (Panel)
-   - **Alarm Timer Text** → AlarmTimerText GameObject (TextMeshPro)
    - **Health Icons** → Array'e 3 kalp ikonunu sürükle:
      - **Size**: `3` yap
      - **Element 0**: HeartIcon1 GameObject
@@ -383,15 +357,18 @@ Tüm UI text'lerinize font ve renk uygulamak için Editor Window kullanacağız:
      - **Element 2**: HeartIcon3 GameObject
    - **Full Heart Sprite** → Dolu kalp sprite'ı (Inspector'da seçin)
    - **Empty Heart Sprite** → Boş kalp sprite'ı (opsiyonel, boş bırakılabilir - renk değişimi kullanılır)
-3. **UIManager** GameObject'ini seç → Inspector'da **Alarm UI** referansına AlarmUI GameObject'ini ata
+   - **Full Heart Color**: Dolu kalp rengi (genelde beyaz - `255, 255, 255, 255`)
+   - **Empty Heart Color**: Boş kalp rengi (genelde gri, yarı saydam - `128, 128, 128, 128`)
+3. **UIManager** GameObject'ini seç → Inspector'da **Health UI** referansına HealthUI GameObject'ini ata
 
 ### ⚠️ Önemli Notlar:
+- **Health bar her zaman görünür!** Alarm mantığı kaldırıldı, sadece can gösterimi var.
 - **Max Health**: 3 kalp (Hollow Knight maskeleri gibi)
 - Dolu kalpler: `fullHeartColor` (beyaz)
 - Boş kalpler: `emptyHeartColor` (gri, yarı saydam)
 - Sprite yoksa sadece renk değişimi kullanılır
 - **Container boyut sorunları için**: Content Size Fitter kullanın ve RectTransform Size'ı yeterince büyük ayarlayın
-- **Anchor ayarları**: Center anchor kullanarak içeriği ortada tutun
+- **Sol üstte konumlandırma**: Anchor'ı Top-Left yaparak sol üste sabitleriz
 
 ---
 
@@ -414,7 +391,7 @@ Tüm UI text'lerinize font ve renk uygulamak için Editor Window kullanacağız:
 - ✅ **Settings Panel** → SettingsPanel GameObject
 - ✅ **Storyboard Panel** → StoryboardPanel GameObject
 - ✅ **Pause Panel** → PausePanel GameObject
-- ✅ **Alarm UI** → AlarmUI GameObject
+- ✅ **Health UI** → HealthUI GameObject
 - ✅ **Main Canvas** → MainCanvas
 
 ⚠️ **ÖNEMLİ**: Manager script referanslarını **manuel bağlamanıza gerek yok!** UIManager otomatik olarak panel GameObject'lerinden manager script'lerini bulur (`GetComponent`).
@@ -429,7 +406,7 @@ Unity'de her panel GameObject'ini seçip Inspector'da şu ayarları yapın:
 2. **SettingsPanel** → Inspector → GameObject aktiflik checkbox'ı: ❌ **TİKSIZ**
 3. **StoryboardPanel** → Inspector → GameObject aktiflik checkbox'ı: ❌ **TİKSIZ**
 4. **PausePanel** → Inspector → GameObject aktiflik checkbox'ı: ❌ **TİKSIZ**
-5. **AlarmContainer** (AlarmUI altında) → Inspector → GameObject aktiflik checkbox'ı: ❌ **TİKSIZ**
+5. **HealthUI** → Inspector → GameObject aktiflik checkbox'ı: ✅ **TİKLI** (health bar her zaman görünür)
 
 ### ⚠️ Önemli Not:
 - **GameManager** oyun başladığında otomatik olarak `ShowMainMenu()` çağırır ve diğer panelleri gizler
@@ -440,17 +417,10 @@ Unity'de her panel GameObject'ini seçip Inspector'da şu ayarları yapın:
 
 ## 🎮 Kullanım Örnekleri
 
-### Oyun İçi Alarm Gösterme
+### Oyun İçi Can Güncelleme
 ```csharp
-// Alarm başladığında
-UIManager.Instance.ShowAlarmUI();
-UIManager.Instance.UpdateAlarmTimer(5f); // 5 saniye geri sayım
-UIManager.Instance.UpdateHealth(2, 2); // Can barını güncelle
-```
-
-### Alarm Bittiğinde
-```csharp
-UIManager.Instance.HideAlarmUI();
+// Can değerini güncelle (health bar sol üstte her zaman görünür)
+UIManager.Instance.UpdateHealth(2, 3); // 2 can, maksimum 3
 ```
 
 ### Oyun İçi Duraklatma

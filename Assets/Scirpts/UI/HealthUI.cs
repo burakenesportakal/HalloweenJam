@@ -5,14 +5,11 @@ using TMPro;
 namespace HalloweenJam.UI
 {
     /// <summary>
-    /// Alarm UI - Alarm çaldığında görünür (Alarm sayacı + Can ikonları - Hollow Knight maskeleri gibi)
-    /// Normalde gizlidir, sadece alarm durumunda aktif olur
+    /// Health UI - Sol üstte her zaman görünür can ikonları (Hollow Knight maskeleri gibi)
     /// </summary>
-    public class AlarmUI : MonoBehaviour
+    public class HealthUI : MonoBehaviour
     {
-        [Header("UI References")]
-        [SerializeField] private GameObject alarmContainer; // Ana container (göster/gizle için)
-        [SerializeField] private TextMeshProUGUI alarmTimerText;
+        [Header("Health Icons")]
         [SerializeField] private Image[] healthIcons; // HP ikonları (kalpler/maskeler) - Max 3 tane
 
         [Header("Health Icon Settings")]
@@ -21,58 +18,30 @@ namespace HalloweenJam.UI
         [SerializeField] private Color fullHeartColor = Color.white;
         [SerializeField] private Color emptyHeartColor = new Color(0.5f, 0.5f, 0.5f, 0.5f); // Gri, yarı saydam
 
-        private int currentHealth = 2;
-        private int maxHealth = 2;
-        private bool isVisible = false;
+        [Header("Initial Health Settings")]
+        [SerializeField] private int initialHealth = 3; // Başlangıç can değeri
+
+        private int currentHealth = 3;
+        private int maxHealth = 3;
 
         private void Start()
         {
-            // Başlangıçta gizli
-            Hide();
-
-            // Başlangıç sağlık değerlerini ayarla
-            UpdateHealth(maxHealth, maxHealth);
-            
             // Health icons array kontrolü
             if (healthIcons == null || healthIcons.Length == 0)
             {
-                Debug.LogWarning("AlarmUI: Health icons array atanmamış! Inspector'da healthIcons array'ini doldurun.");
+                Debug.LogWarning("HealthUI: Health icons array atanmamış! Inspector'da healthIcons array'ini doldurun.");
+                return;
             }
-        }
 
-        /// <summary>
-        /// Alarm UI'ı gösterir
-        /// </summary>
-        public void Show()
-        {
-            isVisible = true;
-            if (alarmContainer != null)
-                alarmContainer.SetActive(true);
-        }
+            // Max health'i array uzunluğuna göre ayarla (max 3)
+            maxHealth = Mathf.Clamp(healthIcons.Length, 1, 3);
+            
+            // Initial health'i max health'e göre ayarla
+            initialHealth = Mathf.Clamp(initialHealth, 0, maxHealth);
+            currentHealth = initialHealth;
 
-        /// <summary>
-        /// Alarm UI'ı gizler
-        /// </summary>
-        public void Hide()
-        {
-            isVisible = false;
-            if (alarmContainer != null)
-                alarmContainer.SetActive(false);
-        }
-
-        /// <summary>
-        /// Alarm sayacını günceller
-        /// </summary>
-        public void UpdateTimer(float remainingTime)
-        {
-            if (!isVisible) return;
-
-            if (alarmTimerText != null)
-            {
-                // Geri sayım formatı: "ALARM: 5"
-                int seconds = Mathf.CeilToInt(remainingTime);
-                alarmTimerText.text = $"ALARM: {seconds}";
-            }
+            // Başlangıç sağlık değerlerini ayarla
+            UpdateHealth(currentHealth, maxHealth);
         }
 
         /// <summary>
@@ -82,8 +51,6 @@ namespace HalloweenJam.UI
         {
             currentHealth = Mathf.Clamp(current, 0, max);
             maxHealth = Mathf.Clamp(max, 1, 3); // Max 3 kalp (Hollow Knight gibi)
-
-            if (!isVisible) return;
 
             // Health icons güncelle
             if (healthIcons != null && healthIcons.Length > 0)
