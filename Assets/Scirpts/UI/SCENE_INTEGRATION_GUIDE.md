@@ -6,11 +6,12 @@ Bu rehber, UI sistemini oyununuzun sahne yapısına nasıl entegre edeceğinizi 
 
 ## 🎯 SAHNE YAPISI
 
-Oyununuz 3 sahneye sahip:
+Oyununuz 4 sahneye sahip:
 
-1. **Intro Sahnesi** (Başlangıç) - Intro animasyonları, logo vs.
-2. **UI Sahnesi (Menu Scene)** - Ana menü, ayarlar, storyboard
-3. **Oyun Sahnesi (Game Scene)** - Oyun içi UI (Pause, Health)
+1. **Intro Sahnesi** (Index 0) - Intro animasyonları, logo vs.
+2. **UI Sahnesi (Menu Scene)** (Index 1) - Ana menü, ayarlar, storyboard
+3. **Oyun Sahnesi (Game Scene)** (Index 2) - Oyun içi UI (Pause, Health)
+4. **Outro Sahnesi** (Index 3) - Oyun sonu, kazanma ekranı
 
 ### UI Bölünmesi:
 
@@ -193,6 +194,7 @@ Eğer her sahne için ayrı GameManager isterseniz:
    - **Index 0**: **Intro.unity** (Intro sahnesi)
    - **Index 1**: **UI.unity** (Menu sahnesi)
    - **Index 2**: **GameScene.unity** (Oyun sahnesi)
+   - **Index 3**: **Outro.unity** (Outro sahnesi)
 
 **NOT:** Eğer Build Profiles penceresinde sahneler görünmüyorsa, sahne dosyalarını **Project** panelinden sürükleyip **Scenes** listesine bırakın.
 
@@ -260,9 +262,40 @@ public void ReturnToMainMenu()
 
 ---
 
-## 📋 ADIM 5: Oyun İçi Sistemlerle Entegrasyon
+## 📋 ADIM 5: Oyun Sonu Kapısı (End Door)
 
-### 5.1 Health Sistemi Entegrasyonu
+### 5.1 End Door GameObject Oluşturma
+
+1. **Oyun sahnenizde** → Hierarchy → Sağ tık → **Create Empty** → İsmi: **"EndDoor"**
+2. **EndDoor** GameObject'ine **BoxCollider2D** ekle:
+   - Inspector'da **Add Component** → **Physics 2D → Box Collider 2D**
+   - **Is Trigger**: ✅ **TİKLI** (oyuncu içinden geçebilsin ama algılansın)
+   - **Size**: Kapının boyutuna göre ayarlayın (örnek: 2 x 3)
+
+### 5.2 EndDoorTrigger Script Eklemek
+
+1. **EndDoor** GameObject'ini seç → Inspector'da **Add Component** → **EndDoorTrigger.cs**
+2. Inspector'da:
+   - **Player Tag**: Oyuncunuzun tag'i (genelde "Player")
+   - **Has Entered**: Otomatik yönetiliyor, dokunmayın
+
+### 5.3 Kapı Görseli (Opsiyonel)
+
+1. **EndDoor** GameObject'ine **SpriteRenderer** ekleyin
+2. Kapı sprite'ınızı atayın
+3. Veya kapıyı görsel bir GameObject yapın ve EndDoor trigger'ı altına koyun
+
+### 5.4 Çalışma Mantığı
+
+- Oyuncu **EndDoor**'a değdiğinde (trigger veya collision)
+- **EndDoorTrigger** otomatik olarak **GameManager.WinGame()** çağırır
+- **GameManager** outro sahnesine geçer
+
+---
+
+## 📋 ADIM 6: Oyun İçi Sistemlerle Entegrasyon
+
+### 6.1 Health Sistemi Entegrasyonu
 
 Oyuncu health script'inizden:
 
@@ -373,6 +406,7 @@ private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 - [ ] Resume butonu çalışıyor mu?
 - [ ] Ana Menüye Dön butonu UI sahnesine dönüyor mu?
 - [ ] Health sistemi UI'ya haber veriyor mu?
+- [ ] EndDoor kapıya değince outro sahnesine geçiyor mu?
 
 ---
 
@@ -383,8 +417,10 @@ private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 3. ✅ **UI Sahnesinde**: UIManager'dan PausePanel ve HealthUI referanslarını **boşaltın**
 4. ✅ **GameCanvas Prefab Oluştur**: GameCanvas, UIManager, PausePanel ve HealthUI'yi birleştirip prefab yapın
 5. ✅ **Oyun Sahnesinde**: **GameCanvasPrefab**'ı ekleyin (tek seferde hepsi gelir!)
-6. ✅ **Build Settings**: Sahne sıralamasını ayarlayın (Intro: 0, UI: 1, Game: 2)
-7. ✅ **Player Health Script**: UIManager.UpdateHealth() çağrısı ekleyin
+6. ✅ **Build Settings**: Sahne sıralamasını ayarlayın (Intro: 0, UI: 1, Game: 2, Outro: 3)
+7. ✅ **GameManager Inspector**: Outro Scene Index = 3
+8. ✅ **End Door Oluştur**: Oyun sahnesinde EndDoor GameObject + EndDoorTrigger script ekleyin
+9. ✅ **Player Health Script**: UIManager.UpdateHealth() çağrısı ekleyin
 
 ### 🎯 Prefab Yaklaşımının Avantajları:
 - ✅ **Tek Prefab**: GameCanvas, UIManager, PausePanel ve HealthUI hepsi bir arada

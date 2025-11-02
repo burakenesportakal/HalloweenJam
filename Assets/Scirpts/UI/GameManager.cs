@@ -25,6 +25,7 @@ namespace HalloweenJam.UI
         [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
         [SerializeField] private int uiSceneIndex = 1; // UI sahnesi build index
         [SerializeField] private int gameSceneIndex = 2; // Oyun sahnesi build index
+        [SerializeField] private int outroSceneIndex = 3; // Outro sahnesi build index
 
         private void Awake()
         {
@@ -190,6 +191,20 @@ namespace HalloweenJam.UI
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
             );
+        }
+
+        /// <summary>
+        /// Oyunu kazandığında çağrılır (boss yenildi veya kapı kırıldı) - Outro sahnesine geçer
+        /// </summary>
+        public void WinGame()
+        {
+            CurrentState = GameState.GameOver;
+            Time.timeScale = 1f;
+
+            Debug.Log("Game Won! Loading outro scene...");
+
+            // Outro sahnesine geç
+            SceneManager.LoadScene(outroSceneIndex);
         }
 
         /// <summary>

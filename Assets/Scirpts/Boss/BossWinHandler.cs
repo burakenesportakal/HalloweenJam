@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using HalloweenJam.UI;
 
 namespace HalloweenJam.Boss
 {
@@ -16,7 +16,6 @@ namespace HalloweenJam.Boss
 
         [Header("Post-Win Settings")]
         [SerializeField] private float winDelay = 2f; // Win sonrası bekleme
-        [SerializeField] private string nextSceneName = "MainMenu"; // Oyun sonu sahnesi
 
         private bool gameWon = false;
 
@@ -74,9 +73,14 @@ namespace HalloweenJam.Boss
 
         private void LoadNextScene()
         {
-            if (!string.IsNullOrEmpty(nextSceneName))
+            // GameManager'a win bildir (outro sahnesine geçecek)
+            if (GameManager.Instance != null)
             {
-                SceneManager.LoadScene(nextSceneName);
+                GameManager.Instance.WinGame();
+            }
+            else
+            {
+                Debug.LogError("BossWinHandler: GameManager bulunamadı! Outro sahnesine geçilemiyor.");
             }
         }
 
