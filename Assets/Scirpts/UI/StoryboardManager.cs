@@ -26,14 +26,18 @@ namespace HalloweenJam.UI
 
         private void Awake()
         {
-            // Varsayılan hikaye metinleri (sonradan değiştirilebilir)
+            // Story text - 30 second story in English
+            // Story: A lab trying to clone humans, a symbiote parasite emerged during experiments
+            // Must escape by taking over different clone units, wrong form = attack
             if (storyPages.Count == 0)
             {
-                storyPages.Add("Bir laboratuvarda hapsolmuş bir simbiyotsun...");
-                storyPages.Add("En üst kattan kaçmak için aşağıya inmelisin.");
-                storyPages.Add("Ancak dikkatli ol - renkli bölgelerdeki askerler seni fark ederse alarm çalar!");
-                storyPages.Add("Askerlerin içine girerek onları ele geçirebilirsin. Ama doğru renk bölgesinde olmalısın...");
-                storyPages.Add("Hazır mısın? Kaçış başlıyor!");
+                storyPages.Add("A laboratory... conducting forbidden experiments. Human cloning.");
+                storyPages.Add("During one of these experiments, something went wrong. You emerged.");
+                storyPages.Add("A symbiote. A parasite. An accident they never intended to create.");
+                storyPages.Add("You must escape this facility. Your only way out is to take over the clone units.");
+                storyPages.Add("Different units guard different floors. Blue. Red. Green. Take over their bodies. Blend in.");
+                storyPages.Add("But if they see you in the wrong unit's form, they will attack.");
+                storyPages.Add("Move carefully. Take over the right unit at the right time. Your escape begins now.");
             }
         }
 

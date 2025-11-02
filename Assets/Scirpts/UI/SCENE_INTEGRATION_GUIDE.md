@@ -73,56 +73,80 @@ MainCanvas
 
 ---
 
-## 📋 ADIM 2: Oyun Sahnesinde UI Oluşturma (Game Scene)
+## 📋 ADIM 2: GameCanvas Prefab Oluşturma (Önerilen - Kolay Entegrasyon)
 
-### 2.1 GameCanvas Oluşturma
+### 2.1 Geçici GameCanvas Oluşturma (UI Sahnesinde veya Ayrı Test Sahnesinde)
 
-1. **Oyun sahnenizi açın** (GameScene.unity veya ne ise)
-2. **Hierarchy** → Sağ tık → **UI → Canvas** → İsmi: **"GameCanvas"**
+**Seçenek A: UI Sahnesinde Oluştur (Önerilen)**
+1. **UI sahnesini açın** (UI.unity)
+2. **MainCanvas** altında → Sağ tık → **UI → Canvas** → İsmi: **"GameCanvas"**
 3. **GameCanvas** ayarları:
    - **Render Mode**: Screen Space - Overlay
-   - **Sort Order**: 0 (veya istediğiniz değer)
+   - **Sort Order**: 1 (MainCanvas'tan farklı olmalı, üstte görünsün)
 
-### 2.2 PausePanel Prefab'ını Eklemek
+**Seçenek B: Yeni Test Sahnesi Oluştur**
+1. **File** → **New Scene** → **Basic (Built-in)**
+2. **Hierarchy** → Sağ tık → **UI → Canvas** → İsmi: **"GameCanvas"**
 
-1. **GameCanvas** altında → **Prefabs klasöründen** → **PausePanelPrefab**'ı **sürükle-bırak**
-2. **PausePanelPrefab** instance'ı aktif olmalı → Inspector'da **GameObject aktiflik checkbox: ✅ TİKLI**
-3. **PauseMenuManager** script'i zaten prefab'da var, kontrol edin:
-   - Tüm buton referansları bağlı olmalı
-   - Gerekirse Inspector'da kontrol edin ve bağlayın
+### 2.2 GameCanvas İçeriğini Oluşturma
 
-### 2.3 HealthUI Prefab'ını Eklemek
+1. **UIManager** ekle:
+   - **GameCanvas** altında → Sağ tık → **Create Empty** → İsmi: **"UIManager"**
+   - **UIManager.cs** script'ini ekle
 
-1. **GameCanvas** altında → **Prefabs klasöründen** → **HealthUIPrefab**'ı **sürükle-bırak**
-2. **HealthUIPrefab** instance'ı aktif olmalı → Inspector'da **GameObject aktiflik checkbox: ✅ TİKLI**
-3. **HealthUI.cs** script'i zaten prefab'da var, kontrol edin:
-   - Health Icons array'i dolu olmalı (3 kalp ikonu)
-   - Full Heart Sprite ve Empty Heart Sprite atanmış olmalı
-   - Gerekirse Inspector'da kontrol edin ve atayın
+2. **PausePanelPrefab** ekle:
+   - **GameCanvas** altında → **Prefabs klasöründen** → **PausePanelPrefab**'ı **sürükle-bırak**
+   - **PausePanelPrefab** instance → Inspector'da **GameObject aktiflik checkbox: ✅ TİKLI**
+   - Buton referanslarını kontrol edin (zaten prefab'da olmalı)
 
-### 2.4 UIManager Eklemek
+3. **HealthUIPrefab** ekle:
+   - **GameCanvas** altında → **Prefabs klasöründen** → **HealthUIPrefab**'ı **sürükle-bırak**
+   - **HealthUIPrefab** instance → Inspector'da **GameObject aktiflik checkbox: ✅ TİKLI**
+   - Health icons ve sprite'ları kontrol edin (zaten prefab'da olmalı)
 
-1. **GameCanvas** altında → Sağ tık → **Create Empty** → İsmi: **"UIManager"**
-2. **UIManager.cs** script'ini ekleyin
-3. Inspector'da:
-   - **Pause Panel** → PausePanel GameObject'ini ata
-   - **Health UI** → HealthUI GameObject'ini ata
-   - **Main Menu Panel** → **BOŞ** (None)
-   - **Settings Panel** → **BOŞ** (None)
-   - **Storyboard Panel** → **BOŞ** (None)
-   - **Main Canvas** → GameCanvas GameObject'ini ata
+4. **UIManager Referanslarını Bağla:**
+   - **UIManager** GameObject'ini seç → Inspector'da:
+     - **Pause Panel** → PausePanel GameObject'ini ata
+     - **Health UI** → HealthUI GameObject'ini ata
+     - **Main Menu Panel** → **BOŞ** (None)
+     - **Settings Panel** → **BOŞ** (None)
+     - **Storyboard Panel** → **BOŞ** (None)
+     - **Main Canvas** → GameCanvas GameObject'ini ata
 
-### 2.5 Oyun Sahnesi Yapısı
+### 2.3 GameCanvas'ı Prefab Yapma
 
-**GameCanvas** altında şunlar olmalı:
+1. **GameCanvas** GameObject'ini seçin (tüm alt objelerle birlikte)
+2. **Project** panelinde → **Prefabs** klasörüne **sürükle-bırak**
+3. Prefab adı: **"GameCanvasPrefab"** veya **"GameUIPrefab"**
+
+### 2.4 Oyun Sahnesinde GameCanvas Prefab'ını Kullanma
+
+1. **Oyun sahnenizi açın** (GameScene.unity)
+2. **Hierarchy** → **Prefabs klasöründen** → **GameCanvasPrefab**'ı **sürükle-bırak**
+3. **GameCanvasPrefab** instance aktif olmalı → Inspector'da **GameObject aktiflik checkbox: ✅ TİKLI**
+
+**Hepsi bu kadar!** UIManager referansları zaten prefab'da bağlı, oyun sahnesinde sadece prefab'ı eklemeniz yeterli.
+
+### 2.5 (Opsiyonel) UI Sahnesinden GameCanvas'ı Kaldırma
+
+Eğer UI sahnesinde GameCanvas oluşturduysanız:
+1. **UI sahnesinde** → **GameCanvas** GameObject'ini **SİLİN** (artık prefab olarak var)
+2. Veya **pasif yapın** (aktiflik checkbox: ❌ TİKSİZ)
+
+### 2.6 Oyun Sahnesi Yapısı (Prefab ile)
+
+**Oyun sahnesinde:**
 ```
-GameCanvas
+GameCanvasPrefab (instance)
+├── Canvas
 ├── UIManager
-├── PausePanel
+├── PausePanel (instance)
 │   └── PauseMenuManager (script)
-└── HealthUI
+└── HealthUI (instance)
     └── HealthUI (script)
 ```
+
+**NOT:** Artık oyun sahnesinde tek bir prefab eklemeniz yeterli!
 
 ---
 
@@ -150,13 +174,27 @@ Eğer her sahne için ayrı GameManager isterseniz:
 
 ## 📋 ADIM 4: Sahne Geçişleri
 
-### 4.1 Build Settings
+### 4.1 Build Settings (Unity 6)
 
-1. **File** → **Build Settings**
-2. **Scenes In Build** listesine ekleyin:
+**Unity 6'da Build Settings'e erişim:**
+
+1. **File** menüsüne tıklayın
+2. **Build Profiles** seçeneğini seçin (veya kısayol: `Ctrl+Shift+B`)
+3. Açılan **Build Profiles** penceresinde:
+   - Sol üstteki **"+"** butonuna tıklayarak yeni bir profile oluşturun
+   - Veya mevcut bir profile'ı seçin
+   - **Scenes** bölümünde **"+"** butonuna tıklayarak sahneleri ekleyin
+
+**Alternatif Yöntem (Klasik Build Settings):**
+- Hala klasik Build Settings penceresini istiyorsanız: `Ctrl+Shift+B` tuşlarına basın
+- Ya da: **Edit** → **Project Settings** → **Editor** → **Build Settings** bölümüne gidin
+
+**Scenes In Build listesine ekleyin:**
    - **Index 0**: **Intro.unity** (Intro sahnesi)
    - **Index 1**: **UI.unity** (Menu sahnesi)
    - **Index 2**: **GameScene.unity** (Oyun sahnesi)
+
+**NOT:** Eğer Build Profiles penceresinde sahneler görünmüyorsa, sahne dosyalarını **Project** panelinden sürükleyip **Scenes** listesine bırakın.
 
 ### 4.2 Intro → Menu Geçişi
 
@@ -343,12 +381,16 @@ private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 1. ✅ **UI Sahnesinde**: PausePanel ve HealthUI'yi **Prefab yapın**
 2. ✅ **UI Sahnesinde**: Prefab instance'larını **pasif yapın** (görünmez)
 3. ✅ **UI Sahnesinde**: UIManager'dan PausePanel ve HealthUI referanslarını **boşaltın**
-4. ✅ **Oyun Sahnesinde**: GameCanvas oluşturun
-5. ✅ **Oyun Sahnesinde**: Prefab'lardan PausePanel ve HealthUI'yi ekleyin
-6. ✅ **Oyun Sahnesinde**: Prefab instance'larını **aktif yapın**
-7. ✅ **Oyun Sahnesinde**: UIManager ekleyin ve referansları atayın
-8. ✅ **Build Settings**: Sahne sıralamasını ayarlayın (Intro: 0, UI: 1, Game: 2)
-9. ✅ **Player Health Script**: UIManager.UpdateHealth() çağrısı ekleyin
+4. ✅ **GameCanvas Prefab Oluştur**: GameCanvas, UIManager, PausePanel ve HealthUI'yi birleştirip prefab yapın
+5. ✅ **Oyun Sahnesinde**: **GameCanvasPrefab**'ı ekleyin (tek seferde hepsi gelir!)
+6. ✅ **Build Settings**: Sahne sıralamasını ayarlayın (Intro: 0, UI: 1, Game: 2)
+7. ✅ **Player Health Script**: UIManager.UpdateHealth() çağrısı ekleyin
+
+### 🎯 Prefab Yaklaşımının Avantajları:
+- ✅ **Tek Prefab**: GameCanvas, UIManager, PausePanel ve HealthUI hepsi bir arada
+- ✅ **Kolay Entegrasyon**: Oyun sahnesine sadece bir prefab ekleyin
+- ✅ **Hızlı**: Arkadaşınız 30 saniyede ekleyebilir
+- ✅ **Düzenli**: Tüm UI yapısı tek bir prefab'da
 
 ### 💡 Prefab Avantajları:
 - ✅ Aynı yapıyı iki sahneye ekleyebilirsiniz
