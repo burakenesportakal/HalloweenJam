@@ -23,7 +23,10 @@ namespace HalloweenJam.UI
 
         [Header("Settings")]
         [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
-        [SerializeField] private int uiSceneIndex = 1; // UI sahnesi build index
+        
+        [Header("Scene Indexes")]
+        [SerializeField] private int introSceneIndex = 0; // Intro sahnesi build index
+        [SerializeField] private int uiSceneIndex = 1; // UI sahnesi build index (Main Menu)
         [SerializeField] private int gameSceneIndex = 2; // Oyun sahnesi build index
         [SerializeField] private int outroSceneIndex = 3; // Outro sahnesi build index
 

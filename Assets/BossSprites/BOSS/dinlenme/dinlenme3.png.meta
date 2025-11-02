@@ -199,7 +199,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      dinlenme3_0: 6761269128727706757
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

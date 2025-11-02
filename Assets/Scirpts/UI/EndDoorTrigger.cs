@@ -4,54 +4,63 @@ using HalloweenJam.UI;
 namespace HalloweenJam.UI
 {
     /// <summary>
-    /// Oyun sonu kapısı - Oyuncu kapıya değdiğinde outro sahnesine geçer
+    /// Oyun sonu kapısı - Oyuncu kapıya değdiğinde oyunu kapatır veya outro sahnesine geçer
     /// </summary>
     public class EndDoorTrigger : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField] private string playerTag = "Player";
-        [SerializeField] private bool hasEntered = false; // Tek sefer tetiklenmesi için
+        [SerializeField] private bool closeGame = false; // True = Oyunu kapat, False = Outro sahnesine geç
+
+        private bool hasTriggered = false;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (hasEntered)
-                return;
+            if (hasTriggered) return;
 
-            // Oyuncu kapıya değdi
             if (other.CompareTag(playerTag))
             {
-                hasEntered = true;
-                WinGame();
+                hasTriggered = true;
+                OnPlayerReachedDoor();
             }
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (hasEntered)
-                return;
+            if (hasTriggered) return;
 
-            // Oyuncu kapıya değdi (Collider2D, trigger değilse)
             if (collision.gameObject.CompareTag(playerTag))
             {
-                hasEntered = true;
-                WinGame();
+                hasTriggered = true;
+                OnPlayerReachedDoor();
             }
         }
 
-        private void WinGame()
+        private void OnPlayerReachedDoor()
         {
-            Debug.Log("End door reached! Game won!");
-            
-            // GameManager'a win bildir
-            if (GameManager.Instance != null)
+            Debug.Log("End door reached!");
+
+            if (closeGame)
             {
-                GameManager.Instance.WinGame();
+                // Oyunu kapat
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                    Application.Quit();
+                #endif
             }
             else
             {
-                Debug.LogError("EndDoorTrigger: GameManager bulunamadı! Outro sahnesine geçilemiyor.");
+                // Outro sahnesine geç
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.WinGame();
+                }
+                else
+                {
+                    Debug.LogError("EndDoorTrigger: GameManager bulunamadı!");
+                }
             }
         }
     }
 }
-
