@@ -16589,6 +16589,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  checkInterval: 0.3
+  destroyRadius: 3
 --- !u!1 &638033341
 GameObject:
   m_ObjectHideFlags: 0
@@ -17612,6 +17614,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  checkInterval: 0.3
+  destroyRadius: 3
 --- !u!61 &912317356
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -25423,6 +25427,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  checkInterval: 0.3
+  destroyRadius: 3
 --- !u!61 &1859372193
 BoxCollider2D:
   m_ObjectHideFlags: 0

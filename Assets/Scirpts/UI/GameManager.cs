@@ -72,18 +72,35 @@ namespace HalloweenJam.UI
             }
         }
 
+        private void Start()
+        {
+            // Eğer oyun sahnesine direkt girildiyse ve state Playing değilse, Playing yap
+            if (SceneManager.GetActiveScene().buildIndex == gameSceneIndex)
+            {
+                if (CurrentState != GameState.Playing && CurrentState != GameState.Paused)
+                {
+                    CurrentState = GameState.Playing;
+                    Time.timeScale = 1f;
+                    Debug.Log($"GameManager: Oyun sahnesine direkt girildi. State = {CurrentState}");
+                }
+            }
+        }
+
         private void Update()
         {
-            // ESC tuşu ile pause/unpause
-            if (Input.GetKeyDown(pauseKey))
+            // ESC tuşu ile pause/unpause - Sadece oyun sahnesindeyken
+            if (SceneManager.GetActiveScene().buildIndex == gameSceneIndex)
             {
-                if (CurrentState == GameState.Playing)
+                if (Input.GetKeyDown(pauseKey))
                 {
-                    PauseGame();
-                }
-                else if (CurrentState == GameState.Paused)
-                {
-                    ResumeGame();
+                    if (CurrentState == GameState.Playing)
+                    {
+                        PauseGame();
+                    }
+                    else if (CurrentState == GameState.Paused)
+                    {
+                        ResumeGame();
+                    }
                 }
             }
         }

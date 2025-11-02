@@ -363,6 +363,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PausePanel
       objectReference: {fileID: 0}
+    - target: {fileID: 3665154806282110628, guid: da5ddaf7e792c8d4a9ff196239bc7690, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3959763971781681778, guid: da5ddaf7e792c8d4a9ff196239bc7690, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

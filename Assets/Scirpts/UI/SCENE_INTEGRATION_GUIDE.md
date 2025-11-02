@@ -2,6 +2,8 @@
 
 Bu rehber, UI sistemini oyununuzun sahne yapısına nasıl entegre edeceğinizi adım adım anlatır.
 
+> **💡 ÖNEMLİ:** GameUI (PauseMenu + HealthUI) bağımsız bir prefab olarak hazırlanmıştır. Ana UI sahnesinden tamamen bağımsızdır. Detaylı kurulum için `GAME_UI_INDEPENDENT_SETUP.md` dosyasına bakın.
+
 ---
 
 ## 🎯 SAHNE YAPISI
@@ -153,23 +155,31 @@ GameCanvasPrefab (instance)
 
 ## 📋 ADIM 3: GameManager'ı Oyun Sahnesine Ekleme
 
-GameManager DontDestroyOnLoad kullanıyor, bu yüzden:
+GameManager DontDestroyOnLoad kullanıyor, ancak oyun sahnesine direkt girildiğinde GameManager olmayabilir. Bu yüzden:
 
-### 3.1 Seçenek 1: GameManager'ı UI Sahnesinde Bırakma (Önerilen)
-
-1. **UI sahnesinde** GameManager zaten var
-2. GameManager **DontDestroyOnLoad** ile oyun sahnesine geçince de aktif kalır
-3. Oyun sahnesinde ayrı bir GameManager'a **gerek yok**
-
-### 3.2 Seçenek 2: GameManager'ı Her Sahneye Ekleme
-
-Eğer her sahne için ayrı GameManager isterseniz:
+### 3.1 GameManager'ı Oyun Sahnesine Ekleme (ÖNERİLEN)
 
 1. **Oyun sahnesinde** → Sağ tık → **Create Empty** → İsmi: **"GameManager"**
-2. **GameManager.cs** script'ini ekleyin
-3. **Singleton pattern** sayesinde UI sahnesindeki GameManager destroy edilir
+2. **GameManager.cs** script'ini ekle
+3. **Inspector'da ayarlar:**
+   - **Pause Key**: Escape (varsayılan)
+   - **UI Scene Index**: 1
+   - **Game Scene Index**: 2
+   - **Outro Scene Index**: 3
 
-**ÖNERİ:** Seçenek 1'i kullanın - GameManager UI sahnesinde kalsın.
+**NOT:** Singleton pattern sayesinde:
+- Eğer UI sahnesinden GameManager gelmişse → Oyun sahnesindeki destroy edilir (UI'daki kullanılır)
+- Eğer oyun sahnesine direkt girildiyse → Oyun sahnesindeki GameManager kullanılır
+- Her iki durumda da çalışır!
+
+### 3.2 Alternatif: GameManager'ı Sadece UI Sahnesinde Bırakma
+
+Eğer sadece UI sahnesinden oyun sahnesine geçilecekse:
+1. **UI sahnesinde** GameManager zaten var
+2. GameManager **DontDestroyOnLoad** ile oyun sahnesine geçince de aktif kalır
+3. **SORUN:** Oyun sahnesine direkt Play edilirse GameManager olmayabilir
+
+**ÖNERİ:** Her iki sahneye de GameManager ekleyin (Seçenek 3.1) - Singleton pattern otomatik yönetir.
 
 ---
 
