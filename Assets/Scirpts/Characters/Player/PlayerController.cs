@@ -99,15 +99,18 @@ public class PlayerController : Entity
             HandleCarryingMovement();
         }
 
-        // Gizlenme durumunda hareket etme
+        // Gizlenme durumunda sadece interaction'a izin ver (gizlenmeden çıkabilmek için)
+        // Diğer hareketler gizlenme durumunda yasak
         if (!isHidden)
         {
             CheckGround();
             HandleMovement();
             HandleJump();
             HandleAttack();
-            HandleInteraction();
         }
+        
+        // Interaction her zaman çalışabilir (gizlenmeden çıkmak için)
+        HandleInteraction();
 
         UpdateAnimations();
     }
@@ -124,6 +127,12 @@ public class PlayerController : Entity
         if (isCarrying && carriedEnemy != null)
         {
             UpdateCarriedEnemyPosition();
+        }
+        
+        // Enemy kontrolü sırasında kamera rotation'ını sabit tut
+        if (isControllingEnemy)
+        {
+            FixCameraRotation();
         }
     }
 
@@ -326,8 +335,38 @@ public class PlayerController : Entity
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.localRotation = Quaternion.identity;
 
+        // Kamera rotation'ını sabit tut (kamera player'ın child'ı ise)
+        FixCameraRotation();
+
         // Enemy'yi kontrol et
         enemy.SetControlled(true, this);
+    }
+    
+    private void FixCameraRotation()
+    {
+        // ÖNEMLİ: Player enemy'nin child'ı olduğunda rotation'ı sıfırla
+        // Bu sayede Cinemachine'in follow target rotation'ı da etkilenmez
+        transform.localRotation = Quaternion.identity;
+        
+        // Eğer Cinemachine kullanılıyorsa, player'ın child'ları arasında kamera'yı kontrol et
+        Camera mainCamera = GetComponentInChildren<Camera>();
+        if (mainCamera != null)
+        {
+            // Kamera'nın rotation'ını sabit tut (world rotation)
+            Quaternion cameraWorldRotation = mainCamera.transform.rotation;
+            mainCamera.transform.rotation = cameraWorldRotation;
+            
+            // Kamera'nın scale'ini de sabit tut (flip'ten etkilenmemesi için)
+            Vector3 cameraScale = mainCamera.transform.localScale;
+            if (cameraScale.x < 0)
+            {
+                mainCamera.transform.localScale = new Vector3(
+                    Mathf.Abs(cameraScale.x),
+                    cameraScale.y,
+                    cameraScale.z
+                );
+            }
+        }
     }
 
     private void AttachToEnemy()
@@ -365,6 +404,9 @@ public class PlayerController : Entity
                 transform.localRotation = Quaternion.identity;
             }
         }
+        
+        // Kamera rotation'ını sürekli sabit tut (enemy flip attığında etkilenmemesi için)
+        FixCameraRotation();
     }
 
     private void ControlEnemy()
