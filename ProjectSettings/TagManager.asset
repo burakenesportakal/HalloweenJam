@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Enemy
   - Hidden
+  - Hide
+  - GreenSolider
+  - Keycard
   layers:
   - Default
   - TransparentFX
