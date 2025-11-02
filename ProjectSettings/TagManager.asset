@@ -4,8 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Hidingspot
   - GreenSolider
+  - Enemy
+  - Hide
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - UI
   - Wall
   - BackWall
-  - 
+  - Enemy
   - 
   - 
   - 

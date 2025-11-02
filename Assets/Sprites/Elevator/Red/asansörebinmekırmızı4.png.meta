@@ -159,7 +159,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "asans\xF6rebinmek\u0131rm\u0131z\u01314_0": -6197552375895973544
+      "asans\xF6rebinmek\u0131rm\u0131z\u01314_1": -4646091535265496647
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
