@@ -10,7 +10,7 @@ public class Entity : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] protected int maxHealth = 100;
-    protected int currentHealth;
+    [SerializeField] protected int currentHealth; 
     protected bool isDead = false;
 
     [Header("Damage Effect")]
@@ -30,16 +30,16 @@ public class Entity : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         currentHealth = maxHealth;
-        
+
         // Orijinal materyali kaydet
         if (spriteRenderer != null)
         {
             originalMaterial = spriteRenderer.material;
         }
-        
+
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.rotation = Quaternion.identity;
-        
+
         // Facing direction'ı başlangıç değerine ayarla
         facingRight = true;
         facingDirection = 1;
@@ -62,7 +62,7 @@ public class Entity : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        // Hasar efekti
+        // Hasar efekti (materyal flash)
         FlashDamageEffect();
 
         if (currentHealth <= 0)
@@ -153,7 +153,7 @@ public class Entity : MonoBehaviour
     {
         // Transform'u rotate et (collider ve sprite'ın da dönmesi için)
         transform.Rotate(0, 180, 0);
-        
+
         facingRight = !facingRight;
         facingDirection *= -1;
     }

@@ -63,41 +63,62 @@ public class Projectile : MonoBehaviour
         Enemy enemy = collision.GetComponent<Enemy>();
         if (enemy != null && !enemy.IsDead())
         {
+            // Debug: Projectile enemy'ye çarptı
+            Debug.Log($"Projectile enemy'ye çarptı! Enemy Type: {enemy.GetEnemyType()}, Projectile Type: {enemyType}");
+
+            int targetEnemyType = enemy.GetEnemyType();
+
             // Hasar verme kuralları:
-            // 1. Eğer projectile player tarafından kontrol edilen enemy'den geliyorsa -> Her enemy'ye hasar ver (kendi projectile'ı hariç)
+            // 1. Eğer projectile player tarafından kontrol edilen enemy'den geliyorsa -> Her enemy'ye hasar ver
             // 2. Eğer farklı tipte enemy'lerse -> Hasar ver
-            // 3. Eğer aynı tipte ve kontrol edilmiyorsa -> Hasar verme
-            // 4. Kontrol edilen enemy'ye -> Her projectile hasar verebilir (kendi projectile'ı hariç)
-            
+            // 3. Eğer aynı tipte enemy'ye çarpmışsa -> Hasar verme
+
             bool canDamage = false;
-            
-            // Kontrol edilen enemy'ye hasar ver (kendi projectile'ı hariç)
+
+            // Önce kontrol edilen enemy kontrolü
             if (enemy.IsControlled())
             {
-                // Eğer projectile kontrol edilen enemy'den gelmiyorsa hasar verebilir
-                if (!isFromControlledEnemy || enemy.GetEnemyType() != enemyType)
+                // Kontrol edilen enemy'ye hasar ver (kendi projectile'ı hariç)
+                if (!isFromControlledEnemy || targetEnemyType != enemyType)
                 {
                     canDamage = true;
                 }
             }
+            // Player kontrolündeki enemy'den geliyorsa
             else if (isFromControlledEnemy)
             {
                 // Player kontrolündeki enemy'den geldi, her enemy'ye hasar verebilir
                 canDamage = true;
             }
-            else if (enemy.GetEnemyType() != enemyType)
+            // Normal enemy'ler arası çatışma - EN ÖNEMLİ KISIM
+            else if (!isFromControlledEnemy && !enemy.IsControlled())
             {
                 // Farklı tipte enemy'lerse hasar verebilir
-                canDamage = true;
+                if (targetEnemyType != enemyType)
+                {
+                    canDamage = true;
+                    // Debug için
+                    Debug.Log($"Enemy {enemyType} -> Enemy {targetEnemyType} hasar veriyor! Damage: {damage}");
+                }
+                else
+                {
+                    // Aynı tipte enemy'ye çarpmış
+                    Debug.Log($"Aynı tipte enemy'ye çarptı: {enemyType} == {targetEnemyType}");
+                }
             }
-            
+
             if (canDamage)
             {
                 enemy.TakeDamage(damage);
                 Destroy(gameObject);
+                return;
             }
-            
-            return;
+            else
+            {
+                // Aynı tipte enemy'ye çarpmış veya hasar verilemez, projectile'ı yok et
+                Destroy(gameObject);
+                return;
+            }
         }
     }
 

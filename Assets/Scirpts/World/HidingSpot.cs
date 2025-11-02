@@ -16,7 +16,7 @@ public class HidingSpot : MonoBehaviour
                 player.SetInHidingSpot(true, this);
             }
         }
-        
+
         // Ölü enemy geldiğinde (taşınan enemy)
         Enemy enemy = other.GetComponent<Enemy>();
         if (enemy != null && enemy.IsDead())

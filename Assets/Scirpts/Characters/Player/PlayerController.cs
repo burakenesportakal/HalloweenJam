@@ -49,10 +49,10 @@ public class PlayerController : Entity
     protected override void Awake()
     {
         base.Awake();
-        
+
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.rotation = Quaternion.identity;
-        
+
         // Facing direction'ı başlangıç değerine ayarla
         facingRight = true;
         facingDirection = 1;
@@ -63,13 +63,13 @@ public class PlayerController : Entity
         base.Start();
         originalTag = gameObject.tag;
         originalLayer = gameObject.layer;
-        
+
         // Orijinal gravity scale'i kaydet
         if (rb != null)
         {
             originalGravityScale = rb.gravityScale;
         }
-        
+
         // SpriteRenderer flipX'i sıfırla (transform rotation kullanıyoruz)
         if (spriteRenderer != null)
         {
@@ -207,7 +207,7 @@ public class PlayerController : Entity
         float jumpForceValue = Mathf.Lerp(minJumpForce, maxJumpForce, chargeRatio);
 
         Vector2 attackDirection = new Vector2(facingDirection * attackDirectionMultiplier.x, attackDirectionMultiplier.y);
-        
+
         // Enemy detect edildiyse ona doğru ayarla
         CheckEnemyInFront();
         if (enemyHit.collider != null)
@@ -218,7 +218,7 @@ public class PlayerController : Entity
                 Vector2 enemyPos = enemyHit.collider.transform.position;
                 Vector2 playerPos = transform.position;
                 Vector2 toEnemy = (enemyPos - playerPos).normalized;
-                
+
                 // Enemy yönüne blend yap
                 Vector2 baseDirection = new Vector2(facingDirection * attackDirectionMultiplier.x, attackDirectionMultiplier.y);
                 Vector2 normalizedBase = baseDirection.normalized;
@@ -230,10 +230,10 @@ public class PlayerController : Entity
 
         float xVelocity = attackDirection.x * jumpForceValue;
         float yVelocity = attackDirection.y * jumpForceValue;
-        
+
         SetVelocity(xVelocity, yVelocity);
         HandleFlip(xVelocity);
-        
+
         isInAttackJump = true;
         chargeTime = 0f;
     }
@@ -251,33 +251,33 @@ public class PlayerController : Entity
 
         // Yakındaki enemy'leri bul
         Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, 2f, enemyLayer);
-        
+
         foreach (var col in nearbyColliders)
         {
             Enemy hitEnemy = col.GetComponent<Enemy>();
             if (hitEnemy == null || hitEnemy.IsDead() || hitEnemy.IsControlled()) continue;
-            
+
             // Trigger collider olan enemy'ye yapışma (ölü enemy)
             if (col.isTrigger) continue;
-            
+
             // Mesafe kontrolü
             float distance = Vector2.Distance(transform.position, hitEnemy.transform.position);
             if (distance > 2f) continue;
-            
+
             // Enemy'nin arkası player'a dönük mü kontrol et
             Vector2 enemyPos = hitEnemy.transform.position;
             Vector2 playerPos = transform.position;
             Vector2 toPlayer = (playerPos - enemyPos);
-            
+
             if (toPlayer.magnitude < 0.01f) continue;
-            
+
             toPlayer.Normalize();
             int enemyFacingDirection = hitEnemy.facingDirection;
-            
+
             // Enemy'nin arkası player'a dönük mü kontrol et
             float dotProduct = toPlayer.x * enemyFacingDirection;
             if (dotProduct > 0) continue; // Enemy'nin önündeyiz, yapışma yok
-            
+
             // Yapışma başlat
             AttachToEnemy(hitEnemy);
             return;
@@ -293,24 +293,24 @@ public class PlayerController : Entity
 
         attachedEnemy = enemy;
         isControllingEnemy = true;
-        
+
         // Attack sistemi flag'lerini sıfırla
         isInAttackJump = false;
         isCharging = false;
         chargeTime = 0f;
-        
+
         // Player'ı enemy'nin child'ı yap
         transform.SetParent(enemy.transform);
-        
+
         // Rigidbody'yi kinematic yap
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.freezeRotation = true;
-        
+
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.localRotation = Quaternion.identity;
-        
+
         // Enemy'yi kontrol et
         enemy.SetControlled(true, this);
     }
@@ -331,11 +331,11 @@ public class PlayerController : Entity
             float playerHalfWidth = capsuleCollider.bounds.extents.x;
             float enemyHalfHeight = enemyCol.bounds.extents.y;
             float playerHalfHeight = capsuleCollider.bounds.extents.y;
-            
+
             // Enemy'nin arkasına (sırtına) konumlan
             float xOffset = -attachedEnemy.facingDirection * (enemyHalfWidth + playerHalfWidth * 0.3f);
             float yOffset = enemyHalfHeight * 0.8f + playerHalfHeight * 0.5f;
-            
+
             transform.localPosition = new Vector3(xOffset, yOffset, transform.localPosition.z);
             transform.localRotation = Quaternion.identity;
         }
@@ -390,22 +390,22 @@ public class PlayerController : Entity
 
         // Parent'tan ayrıl
         transform.SetParent(null);
-        
+
         attachedEnemy = null;
         isControllingEnemy = false;
-        
+
         // Physics'i geri aç - orijinal gravity scale'i geri yükle
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.gravityScale = originalGravityScale; // Orijinal değeri geri yükle
         rb.freezeRotation = false;
-        
+
         // Velocity'yi tamamen sıfırla
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
-        
+
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.rotation = Quaternion.identity;
-        
+
         // Attack sistemi flag'lerini sıfırla
         isInAttackJump = false;
         isCharging = false;
@@ -465,12 +465,12 @@ public class PlayerController : Entity
     {
         // Yakındaki ölü enemy'leri bul
         Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, carryCheckRadius, enemyLayer);
-        
+
         foreach (var col in nearbyColliders)
         {
             Enemy enemy = col.GetComponent<Enemy>();
             if (enemy == null || !enemy.IsDead()) continue;
-            
+
             // Ölü enemy'yi taşı
             PickupEnemy(enemy);
             return;
@@ -486,7 +486,7 @@ public class PlayerController : Entity
 
         // Enemy'yi player'ın child'ı yap
         enemy.transform.SetParent(transform);
-        
+
         // Enemy'nin collider'ını trigger yap
         if (enemy.capsuleCollider != null)
         {
@@ -519,7 +519,7 @@ public class PlayerController : Entity
         {
             float playerHalfHeight = playerCol.bounds.extents.y;
             float enemyHalfHeight = carriedEnemy.capsuleCollider.bounds.extents.y;
-            
+
             // Player'ın üstünde taşı
             float yOffset = playerHalfHeight + enemyHalfHeight + 0.2f;
             carriedEnemy.transform.localPosition = new Vector3(0, yOffset, 0);
@@ -555,7 +555,7 @@ public class PlayerController : Entity
     public void SetInHidingSpot(bool inSpot, HidingSpot spot)
     {
         isInHidingSpot = inSpot;
-        
+
         // Eğer gizlenme yerindeyse ve enemy taşıyorsak enemy'yi yok et
         if (inSpot && isCarrying && carriedEnemy != null)
         {
@@ -586,7 +586,7 @@ public class PlayerController : Entity
         // Jump/Fall - sadece havadayken
         bool isJumping = isGrounded ? false : (rb.linearVelocity.y > 0.1f);
         bool isFalling = isGrounded ? false : (rb.linearVelocity.y < -0.1f);
-        
+
         anim.SetBool("isJumping", isJumping);
         anim.SetBool("isFalling", isFalling);
 
