@@ -150,6 +150,13 @@ public class Enemy : Entity
         // Eğer zaten bir hedef varsa, önce onun hala geçerli olup olmadığını kontrol et
         if (detectedPlayer != null && !detectedPlayer.IsDead())
         {
+            // ÖNEMLİ: Player gizlenmişse takibi bırak
+            if (detectedPlayer.IsHidden())
+            {
+                detectedPlayer = null;
+                return;
+            }
+            
             float distanceToPlayer = Vector2.Distance(transform.position, detectedPlayer.transform.position);
             // Eğer player çok uzaktaysa (loseTargetRange dışındaysa) takibi bırak
             // Ama eğer hala detectionRange içindeyse takip etmeye devam et
@@ -192,6 +199,9 @@ public class Enemy : Entity
         {
             PlayerController player = col.GetComponent<PlayerController>();
             if (player == null || player.IsDead()) continue;
+            
+            // ÖNEMLİ: Gizlenmiş player'ı göremez
+            if (player.IsHidden()) continue;
 
             Vector2 toPlayer = (player.transform.position - transform.position);
             float distance = toPlayer.magnitude;
@@ -259,7 +269,7 @@ public class Enemy : Entity
     {
         // Hedef belirle (player veya enemy)
         Transform target = null;
-        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        if (detectedPlayer != null && !detectedPlayer.IsDead() && !detectedPlayer.IsHidden())
         {
             target = detectedPlayer.transform;
         }
@@ -268,7 +278,12 @@ public class Enemy : Entity
             target = detectedEnemy.transform;
         }
 
-        if (target == null) return;
+        if (target == null)
+        {
+            // Hedef yoksa (player gizlendiyse) attack durdur
+            isAttacking = false;
+            return;
+        }
 
         float distanceToTarget = Vector2.Distance(transform.position, target.position);
         
@@ -489,7 +504,7 @@ public class Enemy : Entity
             foreach (var col in nearbyPlayers)
             {
                 PlayerController player = col.GetComponent<PlayerController>();
-                if (player != null && !player.IsDead())
+                if (player != null && !player.IsDead() && !player.IsHidden())
                 {
                     // Hasar alınca player'ı tespit et ve ona dön
                     detectedPlayer = player;
