@@ -4,7 +4,11 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Boss
+  - Enemy
+  - Hidden
+  - Hide
+  - GreenSolider
+  - Keycard
   layers:
   - Default
   - TransparentFX
@@ -12,10 +16,10 @@ TagManager:
   - 
   - Water
   - UI
-  - Boss
-  - 
-  - 
-  - 
+  - Ground
+  - Player
+  - Enemy
+  - Hidden
   - 
   - 
   - 
