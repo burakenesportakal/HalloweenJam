@@ -12,6 +12,7 @@ public class Projectile : MonoBehaviour
     private int damage;
     private int enemyType; // Hangi enemy tipinden geldiği
     private bool isFromControlledEnemy = false; // Player tarafından kontrol edilen enemy'den mi geldiği
+    private Enemy controlledEnemyRef = null; // Kontrol edilen enemy'nin referansı (aynı tip kontrolü için)
 
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundLayer;
@@ -22,13 +23,14 @@ public class Projectile : MonoBehaviour
         col = GetComponent<Collider2D>();
     }
 
-    public void Initialize(Vector2 dir, float spd, int dmg, int type, bool fromControlledEnemy = false)
+    public void Initialize(Vector2 dir, float spd, int dmg, int type, bool fromControlledEnemy = false, Enemy controlledEnemy = null)
     {
         direction = dir.normalized;
         speed = spd;
         damage = dmg;
         enemyType = type;
         isFromControlledEnemy = fromControlledEnemy;
+        controlledEnemyRef = controlledEnemy;
 
         // Velocity'yi ayarla
         if (rb != null)
@@ -65,9 +67,9 @@ public class Projectile : MonoBehaviour
         {
             // Debug: Projectile enemy'ye çarptı
             Debug.Log($"Projectile enemy'ye çarptı! Enemy Type: {enemy.GetEnemyType()}, Projectile Type: {enemyType}");
-
+            
             int targetEnemyType = enemy.GetEnemyType();
-
+            
             // Hasar verme kuralları:
             // 1. Eğer projectile player tarafından kontrol edilen enemy'den geliyorsa -> Her enemy'ye hasar ver
             // 2. Eğer farklı tipte enemy'lerse -> Hasar ver
@@ -87,8 +89,19 @@ public class Projectile : MonoBehaviour
             // Player kontrolündeki enemy'den geliyorsa
             else if (isFromControlledEnemy)
             {
-                // Player kontrolündeki enemy'den geldi, her enemy'ye hasar verebilir
-                canDamage = true;
+                // Eğer aynı tipteki enemy'ye çarptıysa, kontrol edilen enemy'ye bildir
+                if (targetEnemyType == enemyType && controlledEnemyRef != null)
+                {
+                    // Kontrol edilen enemy'nin flag'ini set et
+                    controlledEnemyRef.SetHasAttackedSameType(true);
+                    // Aynı tipteki enemy'ye hasar ver
+                    canDamage = true;
+                }
+                else
+                {
+                    // Farklı tipteki enemy'ye hasar ver
+                    canDamage = true;
+                }
             }
             // Normal enemy'ler arası çatışma - EN ÖNEMLİ KISIM
             else if (!isFromControlledEnemy && !enemy.IsControlled())

@@ -314,6 +314,7 @@ GameObject:
   - component: {fileID: 7564395805245635838}
   - component: {fileID: 6221466883511360956}
   - component: {fileID: 9056494629884827007}
+  - component: {fileID: 3745306274388081071}
   m_Layer: 8
   m_Name: EnemyBlue
   m_TagString: Enemy
@@ -524,6 +525,7 @@ MonoBehaviour:
   firePoint: {fileID: 3074174146191038724}
   projectileSpeed: 100
   attackCooldown: 1
+  attachmentPoint: {fileID: 0}
   enemyType: 2
   groundLayer:
     serializedVersion: 2
@@ -724,6 +726,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3745306274388081071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7531342199796781569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d3400d5ee0142a429d4703d7effe257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetObject: {fileID: 1777791120297042832}
+  characterEntity: {fileID: 7564395805245635838}
+  destroyOnDeath: 1
 --- !u!1 &8420291060724317231
 GameObject:
   m_ObjectHideFlags: 0

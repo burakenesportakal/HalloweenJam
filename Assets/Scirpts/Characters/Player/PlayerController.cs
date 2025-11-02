@@ -166,8 +166,16 @@ public class PlayerController : Entity
         // Enemy kontrolü sırasında attack jump yapma
         if (isControllingEnemy || isCarrying) return;
 
+        // Attack jump devam ediyorsa sadece enemy kontrolü yap
+        if (isInAttackJump)
+        {
+            CheckEnemyAttachment();
+            return;
+        }
+
         // Attack başladı - charge başlat (sol mouse butonu)
-        if (Input.GetMouseButtonDown(0) && isGrounded)
+        // NOT: Havadayken de attack jump yapılabilir (enemy'ye atlama için)
+        if (Input.GetMouseButtonDown(0))
         {
             isCharging = true;
             chargeTime = 0f;
@@ -193,16 +201,13 @@ public class PlayerController : Entity
             isCharging = false;
             chargeTime = 0f;
         }
-
-        // Attack jump sırasında enemy kontrolü
-        if (isInAttackJump)
-        {
-            CheckEnemyAttachment();
-        }
     }
 
     private void LaunchAttack()
     {
+        // Debug: Attack jump başlatılıyor
+        Debug.Log($"LaunchAttack: isControllingEnemy = {isControllingEnemy}, isCarrying = {isCarrying}, isGrounded = {isGrounded}, isInAttackJump = {isInAttackJump}");
+        
         float chargeRatio = chargeTime / maxChargeTime;
         float jumpForceValue = Mathf.Lerp(minJumpForce, maxJumpForce, chargeRatio);
 
@@ -236,6 +241,8 @@ public class PlayerController : Entity
 
         isInAttackJump = true;
         chargeTime = 0f;
+        
+        Debug.Log($"LaunchAttack: Attack jump başlatıldı! isInAttackJump = {isInAttackJump}");
     }
 
     private void CheckEnemyInFront()
@@ -264,6 +271,13 @@ public class PlayerController : Entity
             float distance = Vector2.Distance(transform.position, hitEnemy.transform.position);
             if (distance > 2f) continue;
 
+            // ÖNEMLİ: Enemy player'ı görüyorsa (takip ediyorsa) yapışma yok
+            // Enemy player'a bakıyorsa, player enemy'nin önündedir, yapışamaz
+            if (hitEnemy.IsDetectingPlayer(this))
+            {
+                continue; // Enemy player'ı görüyor/takip ediyor, yapışma yok
+            }
+
             // Enemy'nin arkası player'a dönük mü kontrol et
             Vector2 enemyPos = hitEnemy.transform.position;
             Vector2 playerPos = transform.position;
@@ -275,10 +289,11 @@ public class PlayerController : Entity
             int enemyFacingDirection = hitEnemy.facingDirection;
 
             // Enemy'nin arkası player'a dönük mü kontrol et
+            // dotProduct < 0 = player enemy'nin arkasında (sırtına dönük)
             float dotProduct = toPlayer.x * enemyFacingDirection;
-            if (dotProduct > 0) continue; // Enemy'nin önündeyiz, yapışma yok
+            if (dotProduct >= 0) continue; // Enemy'nin önündeyiz veya yanındayız, yapışma yok
 
-            // Yapışma başlat
+            // Sadece enemy'nin sırtı player'a dönükse yapışabilir
             AttachToEnemy(hitEnemy);
             return;
         }
@@ -323,21 +338,32 @@ public class PlayerController : Entity
             return;
         }
 
-        // Pozisyonu enemy'nin sırtında tut
-        CapsuleCollider2D enemyCol = attachedEnemy.capsuleCollider;
-        if (enemyCol != null && capsuleCollider != null)
+        // Enemy'nin attachment point'ini kullan (sabit nokta)
+        Transform attachmentPoint = attachedEnemy.GetAttachmentPoint();
+        if (attachmentPoint != null)
         {
-            float enemyHalfWidth = enemyCol.bounds.extents.x;
-            float playerHalfWidth = capsuleCollider.bounds.extents.x;
-            float enemyHalfHeight = enemyCol.bounds.extents.y;
-            float playerHalfHeight = capsuleCollider.bounds.extents.y;
-
-            // Enemy'nin arkasına (sırtına) konumlan
-            float xOffset = -attachedEnemy.facingDirection * (enemyHalfWidth + playerHalfWidth * 0.3f);
-            float yOffset = enemyHalfHeight * 0.8f + playerHalfHeight * 0.5f;
-
-            transform.localPosition = new Vector3(xOffset, yOffset, transform.localPosition.z);
+            // Player enemy'nin child'ı olduğu için, attachment point'in local position'ını kullan
+            transform.localPosition = attachmentPoint.localPosition;
             transform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            // Fallback: Attachment point yoksa eski yöntemi kullan
+            CapsuleCollider2D enemyCol = attachedEnemy.capsuleCollider;
+            if (enemyCol != null && capsuleCollider != null)
+            {
+                float enemyHalfWidth = enemyCol.bounds.extents.x;
+                float playerHalfWidth = capsuleCollider.bounds.extents.x;
+                float enemyHalfHeight = enemyCol.bounds.extents.y;
+                float playerHalfHeight = capsuleCollider.bounds.extents.y;
+
+                // Enemy'nin arkasına (sırtına) konumlan
+                float xOffset = -attachedEnemy.facingDirection * (enemyHalfWidth + playerHalfWidth * 0.3f);
+                float yOffset = enemyHalfHeight * 0.8f + playerHalfHeight * 0.5f;
+
+                transform.localPosition = new Vector3(xOffset, yOffset, transform.localPosition.z);
+                transform.localRotation = Quaternion.identity;
+            }
         }
     }
 
@@ -385,7 +411,11 @@ public class PlayerController : Entity
         if (attachedEnemy != null)
         {
             attachedEnemy.SetControlled(false, null);
-            attachedEnemy.Die(); // Enemy ölür
+            // Enemy'yi öldür (currentHealth 0 olur)
+            attachedEnemy.Die();
+
+            // Debug: Enemy'nin currentHealth'inin 0 olduğunu kontrol et
+            Debug.Log($"Enemy çıkış: CurrentHealth = {attachedEnemy.GetCurrentHealth()}, IsDead = {attachedEnemy.IsDead()}");
         }
 
         // Parent'tan ayrıl
@@ -406,10 +436,13 @@ public class PlayerController : Entity
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.rotation = Quaternion.identity;
 
-        // Attack sistemi flag'lerini sıfırla
+        // Attack sistemi flag'lerini tamamen sıfırla - yeni attack jump yapılabilmesi için
         isInAttackJump = false;
         isCharging = false;
         chargeTime = 0f;
+        
+        // Debug: Flag'lerin sıfırlandığını kontrol et
+        Debug.Log($"DetachFromEnemy: isInAttackJump = {isInAttackJump}, isControllingEnemy = {isControllingEnemy}, isCharging = {isCharging}");
     }
 
     private void HandleInteraction()
@@ -562,6 +595,25 @@ public class PlayerController : Entity
             Destroy(carriedEnemy.gameObject);
             carriedEnemy = null;
             isCarrying = false;
+        }
+    }
+
+    public bool IsHidden()
+    {
+        return isHidden;
+    }
+
+    public void ExitHiding()
+    {
+        if (isHidden)
+        {
+            isHidden = false;
+            gameObject.tag = originalTag;
+            gameObject.layer = originalLayer;
+            if (anim != null)
+            {
+                anim.SetBool("isHidden", false);
+            }
         }
     }
 

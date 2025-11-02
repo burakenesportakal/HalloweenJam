@@ -172,6 +172,7 @@ GameObject:
   - component: {fileID: 7200854450039023671}
   - component: {fileID: 3277616862817184844}
   - component: {fileID: 4999661509776017772}
+  - component: {fileID: 5299124260003479159}
   m_Layer: 8
   m_Name: "EnemyK\u0131rm\u0131z\u0131"
   m_TagString: Enemy
@@ -382,12 +383,28 @@ MonoBehaviour:
   firePoint: {fileID: 8205835243830846199}
   projectileSpeed: 10
   attackCooldown: 1
+  attachmentPoint: {fileID: 8107931363675485717}
   enemyType: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   groundCheckDistance: 0.2
   groundCheckPoint: {fileID: 8586163428387518021}
+--- !u!114 &5299124260003479159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5586587930674250234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d3400d5ee0142a429d4703d7effe257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetObject: {fileID: 6740723830320455031}
+  characterEntity: {fileID: 4999661509776017772}
+  destroyOnDeath: 1
 --- !u!1 &6740723830320455031
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,7 +555,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8107931363675485717}
   m_Layer: 0
-  m_Name: WallCheck
+  m_Name: attachedpoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -553,7 +570,7 @@ Transform:
   m_GameObject: {fileID: 6970336401198575472}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.21100013, y: 0.029000005, z: 0}
+  m_LocalPosition: {x: -0.024, y: -0.005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

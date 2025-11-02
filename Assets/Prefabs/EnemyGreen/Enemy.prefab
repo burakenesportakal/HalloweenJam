@@ -249,6 +249,7 @@ GameObject:
   - component: {fileID: 4697856480283250972}
   - component: {fileID: 5280086795529704865}
   - component: {fileID: 2054068002147822184}
+  - component: {fileID: 9144997506760871834}
   m_Layer: 8
   m_Name: EnemyYesil
   m_TagString: Enemy
@@ -264,8 +265,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3969924851597951133}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.46, y: -0.27838755, z: 0.013807297}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -319,7 +320,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 5714516788560960707, guid: 8c37931fa3618d545b4c94ece13a5d77, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -537,7 +538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 0
-  damageFlashMaterial: {fileID: 0}
+  damageFlashMaterial: {fileID: 2100000, guid: cf5809be154a4fc4991bffee7fc15939, type: 2}
   damageFlashDuration: 0.1
   moveSpeed: 3
   patrolRange: 5
@@ -556,6 +557,7 @@ MonoBehaviour:
   firePoint: {fileID: 3832826664384783973}
   projectileSpeed: 10
   attackCooldown: 2
+  attachmentPoint: {fileID: 0}
   enemyType: 0
   groundLayer:
     serializedVersion: 2
@@ -659,6 +661,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9144997506760871834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3969924851597951133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d3400d5ee0142a429d4703d7effe257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetObject: {fileID: 1922552193657548103}
+  characterEntity: {fileID: 5280086795529704865}
+  destroyOnDeath: 1
 --- !u!1 &5318282293719792017
 GameObject:
   m_ObjectHideFlags: 0

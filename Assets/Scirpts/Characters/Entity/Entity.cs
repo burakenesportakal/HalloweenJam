@@ -10,7 +10,7 @@ public class Entity : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] protected int maxHealth = 100;
-    [SerializeField] protected int currentHealth; 
+    [SerializeField] protected int currentHealth; // Inspector'da görüntüleme için
     protected bool isDead = false;
 
     [Header("Damage Effect")]

@@ -21,6 +21,7 @@ public class Enemy : Entity
     private bool isControlled = false;
     private PlayerController controllingPlayer = null;
     private float loseTargetRange = 15f; // Player/Enemy çok uzaktaysa takibi bırak
+    private bool hasAttackedSameType = false; // Kontrol edilen enemy aynı tipteki bir enemy'ye saldırdı mı?
 
     [Header("Attack")]
     [SerializeField] protected GameObject projectilePrefab;
@@ -29,6 +30,9 @@ public class Enemy : Entity
     [SerializeField] private float attackCooldown = 2f;
     private float lastAttackTime = 0f;
     private bool isAttacking = false;
+
+    [Header("Player Attachment")]
+    [SerializeField] protected Transform attachmentPoint; // Player'ın yapışacağı sabit nokta
 
     [Header("Enemy Type")]
     [SerializeField] protected int enemyType = 0; // 0, 1, 2 - farklı renkler ve güçler için
@@ -212,8 +216,19 @@ public class Enemy : Entity
         {
             Enemy enemy = col.GetComponent<Enemy>();
             if (enemy == null || enemy.IsDead() || enemy == this) continue;
-            if (enemy.IsControlled()) continue; // Kontrol edilen enemy'ye saldırma
-            if (enemy.GetEnemyType() == enemyType) continue; // Aynı tipte enemy'ye saldırma
+
+            // Kontrol edilen enemy kontrolü
+            if (enemy.IsControlled())
+            {
+                // Eğer kontrol edilen enemy aynı tipteyse ve aynı tipteki enemy'ye saldırmamışsa, saldırma
+                if (enemy.GetEnemyType() == enemyType && !enemy.HasAttackedSameType())
+                {
+                    continue; // Aynı tipteki kontrol edilen enemy'ye saldırma (saldırmadığı sürece)
+                }
+                // Farklı tipteki kontrol edilen enemy'ye saldırabilir veya aynı tipteki ama saldırmış olan enemy'ye saldırabilir
+            }
+
+            if (enemy.GetEnemyType() == enemyType) continue; // Aynı tipte enemy'ye saldırma (kontrol edilmeyen)
 
             Vector2 toEnemy = (enemy.transform.position - transform.position);
             float distance = toEnemy.magnitude;
@@ -256,45 +271,55 @@ public class Enemy : Entity
         if (target == null) return;
 
         float distanceToTarget = Vector2.Distance(transform.position, target.position);
+        
+        // Hedefe yönel (hem attack range içinde hem dışında)
+        Vector2 directionToTarget = (target.position - transform.position).normalized;
+        
+        // ÖNEMLİ: Her zaman hedefe dön (attack range içinde olsa bile)
+        // Bu sayede enemy arkasına bakıp önüne ateş etmez
+        HandleFlip(directionToTarget.x);
 
         // Hedef attack range içindeyse saldır ve dur
         if (distanceToTarget <= attackRange)
         {
-            // Ateş etme kontrolü (cooldown kontrolü FireProjectile içinde)
-            FireProjectile();
-
             // Attack range içindeyken dur
             SetVelocity(0, rb.linearVelocity.y);
-            isAttacking = true;
-
+            
             // Animasyon
             if (anim != null)
             {
                 anim.SetBool("isMoving", false);
             }
+            
+            // Ateş etme kontrolü (cooldown kontrolü FireProjectile içinde)
+            // NOT: isAttacking flag'i FireProjectile içinde set ediliyor (gerçekten ateş edildiyse)
+            bool didFire = FireProjectile();
+            
+            // Eğer ateş edildiyse isAttacking true yap (aksi halde false kalır, takılı kalmaz)
+            if (!didFire)
+            {
+                isAttacking = false; // Cooldown bitmediyse takılı kalma
+            }
         }
         else
         {
             // Attack range dışındaysa hedefe doğru takip et
-            Vector2 directionToTarget = (target.position - transform.position).normalized;
-
             if (isGrounded && !isAttacking)
             {
                 SetVelocity(directionToTarget.x * moveSpeed, rb.linearVelocity.y);
-                HandleFlip(directionToTarget.x);
             }
 
             isAttacking = false;
         }
     }
 
-    public virtual void FireProjectile()
+    public virtual bool FireProjectile()
     {
-        if (projectilePrefab == null || firePoint == null) return;
-        if (isDead) return;
+        if (projectilePrefab == null || firePoint == null) return false;
+        if (isDead) return false;
 
         // Cooldown kontrolü
-        if (Time.time < lastAttackTime + attackCooldown) return;
+        if (Time.time < lastAttackTime + attackCooldown) return false;
 
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
 
@@ -328,7 +353,9 @@ public class Enemy : Entity
         {
             int damage = GetAttackDamage();
             // Eğer enemy player tarafından kontrol ediliyorsa, projectile'a bilgiyi ilet
-            projScript.Initialize(direction, projectileSpeed, damage, enemyType, isControlled);
+            // Kontrol edilen enemy'nin referansını da ilet (aynı tip kontrolü için)
+            Enemy controlledEnemyRef = isControlled ? this : null;
+            projScript.Initialize(direction, projectileSpeed, damage, enemyType, isControlled, controlledEnemyRef);
         }
         else
         {
@@ -350,6 +377,9 @@ public class Enemy : Entity
 
         // isAttacking flag'ini ayarla (UpdateAnimations'da animasyon bitince resetlenir)
         isAttacking = true;
+        
+        // Gerçekten ateş edildi, true döndür
+        return true;
     }
 
     protected virtual int GetAttackDamage()
@@ -408,13 +438,44 @@ public class Enemy : Entity
             // Kontrol edildiğinde AI durdur
             detectedPlayer = null;
             detectedEnemy = null;
+            hasAttackedSameType = false; // Reset flag
             SetVelocity(0, rb.linearVelocity.y);
         }
+        else
+        {
+            // Kontrol bırakıldığında flag'i resetle
+            hasAttackedSameType = false;
+        }
+    }
+
+    public void SetHasAttackedSameType(bool attacked)
+    {
+        hasAttackedSameType = attacked;
+    }
+
+    public bool HasAttackedSameType()
+    {
+        return hasAttackedSameType;
     }
 
     public bool IsControlled()
     {
         return isControlled;
+    }
+
+    public Transform GetAttachmentPoint()
+    {
+        return attachmentPoint;
+    }
+
+    public PlayerController GetDetectedPlayer()
+    {
+        return detectedPlayer;
+    }
+
+    public bool IsDetectingPlayer(PlayerController player)
+    {
+        return detectedPlayer != null && detectedPlayer == player && !detectedPlayer.IsDead();
     }
 
     public override void TakeDamage(int damage)

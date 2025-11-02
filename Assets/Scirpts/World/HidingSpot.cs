@@ -17,7 +17,7 @@ public class HidingSpot : MonoBehaviour
             }
         }
 
-        // Ölü enemy geldiğinde (taşınan enemy)
+        // Ölü enemy geldiğinde (taşınan enemy veya yerdeki ölü enemy)
         Enemy enemy = other.GetComponent<Enemy>();
         if (enemy != null && enemy.IsDead())
         {
@@ -26,6 +26,11 @@ public class HidingSpot : MonoBehaviour
             if (player != null && player.IsCarrying() && player.GetCarriedEnemy() == enemy)
             {
                 // Enemy'yi yok et
+                Destroy(enemy.gameObject);
+            }
+            else
+            {
+                // Ölü enemy gizlilik alanına temas etti, yok et
                 Destroy(enemy.gameObject);
             }
         }
@@ -39,6 +44,11 @@ public class HidingSpot : MonoBehaviour
             if (player != null)
             {
                 player.SetInHidingSpot(false, null);
+                // Gizlilik alanından çıkınca otomatik olarak gizlenmeyi kaldır
+                if (player.IsHidden())
+                {
+                    player.ExitHiding();
+                }
             }
         }
     }
