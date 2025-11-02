@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour
     private float speed;
     private int damage;
     private int enemyType; // Hangi enemy tipinden geldiği
+    private bool isFromControlledEnemy = false; // Player tarafından kontrol edilen enemy'den mi geldiği
 
     [Header("Ground Check")]
     [SerializeField] private LayerMask groundLayer;
@@ -21,12 +22,13 @@ public class Projectile : MonoBehaviour
         col = GetComponent<Collider2D>();
     }
 
-    public void Initialize(Vector2 dir, float spd, int dmg, int type)
+    public void Initialize(Vector2 dir, float spd, int dmg, int type, bool fromControlledEnemy = false)
     {
         direction = dir.normalized;
         speed = spd;
         damage = dmg;
         enemyType = type;
+        isFromControlledEnemy = fromControlledEnemy;
 
         // Velocity'yi ayarla
         if (rb != null)
@@ -61,15 +63,40 @@ public class Projectile : MonoBehaviour
         Enemy enemy = collision.GetComponent<Enemy>();
         if (enemy != null && !enemy.IsDead())
         {
-            // Aynı türden enemy'lere hasar verme
-            if (enemy.GetEnemyType() == enemyType)
+            // Hasar verme kuralları:
+            // 1. Eğer projectile player tarafından kontrol edilen enemy'den geliyorsa -> Her enemy'ye hasar ver (kendi projectile'ı hariç)
+            // 2. Eğer farklı tipte enemy'lerse -> Hasar ver
+            // 3. Eğer aynı tipte ve kontrol edilmiyorsa -> Hasar verme
+            // 4. Kontrol edilen enemy'ye -> Her projectile hasar verebilir (kendi projectile'ı hariç)
+            
+            bool canDamage = false;
+            
+            // Kontrol edilen enemy'ye hasar ver (kendi projectile'ı hariç)
+            if (enemy.IsControlled())
             {
-                // Aynı türden enemy, hasar verme
-                return;
+                // Eğer projectile kontrol edilen enemy'den gelmiyorsa hasar verebilir
+                if (!isFromControlledEnemy || enemy.GetEnemyType() != enemyType)
+                {
+                    canDamage = true;
+                }
+            }
+            else if (isFromControlledEnemy)
+            {
+                // Player kontrolündeki enemy'den geldi, her enemy'ye hasar verebilir
+                canDamage = true;
+            }
+            else if (enemy.GetEnemyType() != enemyType)
+            {
+                // Farklı tipte enemy'lerse hasar verebilir
+                canDamage = true;
             }
             
-            enemy.TakeDamage(damage);
-            Destroy(gameObject);
+            if (canDamage)
+            {
+                enemy.TakeDamage(damage);
+                Destroy(gameObject);
+            }
+            
             return;
         }
     }
