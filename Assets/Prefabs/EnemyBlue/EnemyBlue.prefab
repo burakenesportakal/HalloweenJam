@@ -504,7 +504,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04bca81e11dbb90458db0ce214d46a07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 110
   currentHealth: 0
   damageFlashMaterial: {fileID: 2100000, guid: cf5809be154a4fc4991bffee7fc15939, type: 2}
   damageFlashDuration: 0.1
@@ -523,7 +523,7 @@ MonoBehaviour:
   detectionPoint: {fileID: 5955686043351748415}
   projectilePrefab: {fileID: 4636703386100314661, guid: 5b000a9be11e19344bded935ade2dbd8, type: 3}
   firePoint: {fileID: 3074174146191038724}
-  projectileSpeed: 100
+  projectileSpeed: 150
   attackCooldown: 1
   attachmentPoint: {fileID: 0}
   enemyType: 2
