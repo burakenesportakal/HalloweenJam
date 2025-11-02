@@ -78,6 +78,9 @@ public class Enemy : Entity
         {
             HandlePatrol();
         }
+        
+        // Animasyonları güncelle (AI modunda)
+        UpdateAnimations();
     }
 
     private void CreatePatrolPoints()
@@ -104,17 +107,22 @@ public class Enemy : Entity
     {
         if (patrolPointA == null || patrolPointB == null) return;
 
-        // Patrol mantığı - sadece A ve B noktaları arasında gezin
+        // Patrol mantığı - sadece A ve B noktaları arasında sürekli gezin
         Vector3 targetPoint = movingToB ? patrolPointB.position : patrolPointA.position;
-        Vector2 direction = (targetPoint - transform.position).normalized;
+        Vector2 direction = (targetPoint - transform.position);
 
         // Hedefe yakınsa yön değiştir
-        if (Vector2.Distance(transform.position, targetPoint) < 0.5f)
+        if (direction.magnitude < 0.5f)
         {
             movingToB = !movingToB;
+            // Yeni hedefi al
+            targetPoint = movingToB ? patrolPointB.position : patrolPointA.position;
+            direction = (targetPoint - transform.position);
         }
 
-        // Hareket et
+        direction.Normalize();
+
+        // Hareket et - sürekli hareket etmeli
         if (isGrounded && !isAttacking)
         {
             SetVelocity(direction.x * moveSpeed, rb.linearVelocity.y);
@@ -232,7 +240,8 @@ public class Enemy : Entity
         if (projScript != null)
         {
             int damage = GetAttackDamage();
-            projScript.Initialize(direction, projectileSpeed, damage, enemyType);
+            // Eğer enemy player tarafından kontrol ediliyorsa, projectile'a bilgiyi ilet
+            projScript.Initialize(direction, projectileSpeed, damage, enemyType, isControlled);
         }
         else
         {
@@ -251,6 +260,8 @@ public class Enemy : Entity
 
         // Cooldown'u güncelle
         lastAttackTime = Time.time;
+        
+        // isAttacking flag'ini ayarla (UpdateAnimations'da animasyon bitince resetlenir)
         isAttacking = true;
     }
 
@@ -270,6 +281,36 @@ public class Enemy : Entity
         return moveSpeed;
     }
 
+    public void UpdateAnimations()
+    {
+        if (anim == null) return;
+        if (isDead) return;
+
+        // Attack animasyonu bitmiş mi kontrol et
+        if (isAttacking)
+        {
+            AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            // "Fire" veya "attack" state'inde mi kontrol et
+            if (stateInfo.IsName("Fire") || stateInfo.IsName("Attack"))
+            {
+                // Animasyon bitmişse isAttacking'i resetle
+                if (stateInfo.normalizedTime >= 1.0f)
+                {
+                    isAttacking = false;
+                }
+            }
+            else
+            {
+                // Attack state'inde değilse resetle
+                isAttacking = false;
+            }
+        }
+
+        // Hareket animasyonu kontrolü
+        bool isMoving = Mathf.Abs(rb.linearVelocity.x) > 0.1f && !isAttacking;
+        anim.SetBool("isMoving", isMoving);
+    }
+
     public void SetControlled(bool controlled, PlayerController player)
     {
         isControlled = controlled;
@@ -286,6 +327,35 @@ public class Enemy : Entity
     public bool IsControlled()
     {
         return isControlled;
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        // Hasar almadan önce player tespit et (arkası dönükken bile)
+        if (!isDead && !isControlled)
+        {
+            // Player'ı ara (önünde olmasa bile)
+            Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(detectionPoint != null ? detectionPoint.position : transform.position, detectionRange * 2f, playerLayer);
+            
+            foreach (var col in nearbyColliders)
+            {
+                PlayerController player = col.GetComponent<PlayerController>();
+                if (player != null && !player.IsDead())
+                {
+                    // Hasar alınca player'ı tespit et ve ona dön
+                    detectedPlayer = player;
+                    Vector2 toPlayer = (player.transform.position - transform.position).normalized;
+                    
+                    // Player'a dön
+                    if (toPlayer.x > 0 && !facingRight) Flip();
+                    else if (toPlayer.x < 0 && facingRight) Flip();
+                    
+                    break;
+                }
+            }
+        }
+        
+        base.TakeDamage(damage);
     }
 
     public override void Die()

@@ -13,6 +13,12 @@ public class Entity : MonoBehaviour
     protected int currentHealth;
     protected bool isDead = false;
 
+    [Header("Damage Effect")]
+    [SerializeField] protected Material damageFlashMaterial = null;
+    [SerializeField] protected float damageFlashDuration = 0.1f;
+    private Material originalMaterial;
+    private bool isFlashing = false;
+
     [Header("Facing")]
     protected bool facingRight = true;
     public int facingDirection { get; protected set; } = 1;
@@ -24,6 +30,12 @@ public class Entity : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         currentHealth = maxHealth;
+        
+        // Orijinal materyali kaydet
+        if (spriteRenderer != null)
+        {
+            originalMaterial = spriteRenderer.material;
+        }
         
         // Rotation'ı sıfırla (sprite flip için rotation kullanmıyoruz)
         transform.rotation = Quaternion.identity;
@@ -50,10 +62,40 @@ public class Entity : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
+        // Hasar efekti
+        FlashDamageEffect();
+
         if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+    protected virtual void FlashDamageEffect()
+    {
+        if (spriteRenderer == null || damageFlashMaterial == null) return;
+        if (isFlashing) return; // Zaten flash ediyorsa tekrar başlatma
+
+        StartCoroutine(FlashCoroutine());
+    }
+
+    private System.Collections.IEnumerator FlashCoroutine()
+    {
+        isFlashing = true;
+
+        // Orijinal materyali kaydet
+        Material previousMaterial = spriteRenderer.material;
+
+        // Flash materyalini uygula
+        spriteRenderer.material = damageFlashMaterial;
+
+        // Bekle
+        yield return new WaitForSeconds(damageFlashDuration);
+
+        // Orijinal materyali geri yükle
+        spriteRenderer.material = previousMaterial != null ? previousMaterial : originalMaterial;
+
+        isFlashing = false;
     }
 
     public virtual void Heal(int amount)

@@ -4,20 +4,19 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - GreenSolider
   - Enemy
-  - Hide
+  - Hidden
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - 
   - Water
   - UI
-  - Wall
-  - BackWall
+  - Ground
+  - Player
   - Enemy
-  - 
+  - Hidden
   - 
   - 
   - 

@@ -361,6 +361,9 @@ public class PlayerController : Entity
             attachedEnemy.SetVelocity(0, attachedEnemy.rb.linearVelocity.y);
         }
 
+        // Enemy animasyonlarını güncelle
+        attachedEnemy.UpdateAnimations();
+
         // Enemy saldırısı (ranged attack - önüne ateş et)
         if (Input.GetMouseButtonDown(0))
         {
