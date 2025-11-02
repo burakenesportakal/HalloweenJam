@@ -14,10 +14,13 @@ public class Enemy : Entity
     [SerializeField] protected float detectionRange = 8f;
     [SerializeField] protected float attackRange = 6f;
     [SerializeField] protected LayerMask playerLayer;
+    [SerializeField] protected LayerMask enemyLayer;
     [SerializeField] protected Transform detectionPoint;
     private PlayerController detectedPlayer = null;
+    private Enemy detectedEnemy = null;
     private bool isControlled = false;
     private PlayerController controllingPlayer = null;
+    private float loseTargetRange = 15f; // Player/Enemy çok uzaktaysa takibi bırak
 
     [Header("Attack")]
     [SerializeField] protected GameObject projectilePrefab;
@@ -45,7 +48,7 @@ public class Enemy : Entity
     protected override void Start()
     {
         base.Start();
-        
+
         // Patrol point'ler yoksa oluştur
         if (patrolPointA == null || patrolPointB == null)
         {
@@ -67,10 +70,10 @@ public class Enemy : Entity
         }
 
         CheckGround();
-        HandlePlayerDetection();
-        
-        // Player detect edildiyse saldır
-        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        HandleTargetDetection();
+
+        // Hedef detect edildiyse saldır (player veya farklı tipte enemy)
+        if ((detectedPlayer != null && !detectedPlayer.IsDead()) || (detectedEnemy != null && !detectedEnemy.IsDead()))
         {
             HandleRangedAttack();
         }
@@ -78,7 +81,7 @@ public class Enemy : Entity
         {
             HandlePatrol();
         }
-        
+
         // Animasyonları güncelle (AI modunda)
         UpdateAnimations();
     }
@@ -136,60 +139,134 @@ public class Enemy : Entity
         }
     }
 
-    protected virtual void HandlePlayerDetection()
+    protected virtual void HandleTargetDetection()
     {
         if (detectionPoint == null) return;
 
-        // Player'ı detection range içinde ara
-        Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(detectionPoint.position, detectionRange, playerLayer);
-        detectedPlayer = null;
+        // Eğer zaten bir hedef varsa, önce onun hala geçerli olup olmadığını kontrol et
+        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        {
+            float distanceToPlayer = Vector2.Distance(transform.position, detectedPlayer.transform.position);
+            // Eğer player çok uzaktaysa (loseTargetRange dışındaysa) takibi bırak
+            // Ama eğer hala detectionRange içindeyse takip etmeye devam et
+            if (distanceToPlayer > loseTargetRange)
+            {
+                detectedPlayer = null;
+            }
+            else
+            {
+                // Hala takip ediyoruz, player'a dön (arkasına geçse bile)
+                return;
+            }
+        }
 
-        foreach (var col in nearbyColliders)
+        if (detectedEnemy != null && !detectedEnemy.IsDead())
+        {
+            float distanceToEnemy = Vector2.Distance(transform.position, detectedEnemy.transform.position);
+            // Eğer enemy çok uzaktaysa takibi bırak
+            if (distanceToEnemy > loseTargetRange)
+            {
+                detectedEnemy = null;
+            }
+            else
+            {
+                // Hala takip ediyoruz, enemy'ye dön
+                return;
+            }
+        }
+
+        // Yeni hedef ara - hem player hem enemy kontrol et
+        PlayerController foundPlayer = null;
+        Enemy foundEnemy = null;
+        float closestPlayerDistance = float.MaxValue;
+        float closestEnemyDistance = float.MaxValue;
+
+        // Player'ları kontrol et - sadece önündeki player'ı gör (ilk tespit için)
+        // Bir kez tespit edildiyse detectionRange içinde her zaman takip edilir
+        Collider2D[] nearbyPlayers = Physics2D.OverlapCircleAll(detectionPoint.position, detectionRange, playerLayer);
+        foreach (var col in nearbyPlayers)
         {
             PlayerController player = col.GetComponent<PlayerController>();
             if (player == null || player.IsDead()) continue;
 
-            // Player'ın enemy'nin önünde mi kontrol et (sırtı dönükse göremez)
             Vector2 toPlayer = (player.transform.position - transform.position);
-            
-            // Mesafe kontrolü
             float distance = toPlayer.magnitude;
             if (distance > detectionRange) continue;
-            
+
             toPlayer.Normalize();
-            
-            // Enemy'nin önünde mi kontrol et
-            // facingDirection = 1 ise sağa, -1 ise sola bakıyor
-            // toPlayer.x > 0 ise player sağda, toPlayer.x < 0 ise player solda
-            // Enemy'nin önünde olması için: toPlayer.x * facingDirection > 0
+
+            // İlk tespitte sadece önündeki player'ı gör (arkası dönükse göremez)
+            // dotProduct > 0 = player enemy'nin önünde
             float dotProduct = toPlayer.x * facingDirection;
-            
-            // dotProduct > 0 = player enemy'nin önünde (görebilir)
-            // dotProduct <= 0 = player enemy'nin arkasında (göremez)
-            if (dotProduct > 0)
+
+            if (dotProduct > 0 && distance < closestPlayerDistance)
             {
-                detectedPlayer = player;
-                break;
+                foundPlayer = player;
+                closestPlayerDistance = distance;
             }
+        }
+
+        // Farklı tipte enemy'leri kontrol et
+        Collider2D[] nearbyEnemies = Physics2D.OverlapCircleAll(detectionPoint.position, detectionRange, enemyLayer);
+        foreach (var col in nearbyEnemies)
+        {
+            Enemy enemy = col.GetComponent<Enemy>();
+            if (enemy == null || enemy.IsDead() || enemy == this) continue;
+            if (enemy.IsControlled()) continue; // Kontrol edilen enemy'ye saldırma
+            if (enemy.GetEnemyType() == enemyType) continue; // Aynı tipte enemy'ye saldırma
+
+            Vector2 toEnemy = (enemy.transform.position - transform.position);
+            float distance = toEnemy.magnitude;
+            if (distance > detectionRange) continue;
+
+            // Farklı tipte enemy'ler birbirlerini her yönden görebilir
+            if (distance < closestEnemyDistance)
+            {
+                foundEnemy = enemy;
+                closestEnemyDistance = distance;
+            }
+        }
+
+        // Hedef seçimi: Player varsa öncelikli, yoksa enemy
+        if (foundPlayer != null)
+        {
+            detectedPlayer = foundPlayer;
+            detectedEnemy = null;
+        }
+        else if (foundEnemy != null)
+        {
+            detectedEnemy = foundEnemy;
+            detectedPlayer = null;
         }
     }
 
     protected virtual void HandleRangedAttack()
     {
-        if (detectedPlayer == null || detectedPlayer.IsDead()) return;
+        // Hedef belirle (player veya enemy)
+        Transform target = null;
+        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        {
+            target = detectedPlayer.transform;
+        }
+        else if (detectedEnemy != null && !detectedEnemy.IsDead())
+        {
+            target = detectedEnemy.transform;
+        }
 
-        float distanceToPlayer = Vector2.Distance(transform.position, detectedPlayer.transform.position);
+        if (target == null) return;
 
-        // Player attack range içindeyse saldır ve dur
-        if (distanceToPlayer <= attackRange)
+        float distanceToTarget = Vector2.Distance(transform.position, target.position);
+
+        // Hedef attack range içindeyse saldır ve dur
+        if (distanceToTarget <= attackRange)
         {
             // Ateş etme kontrolü (cooldown kontrolü FireProjectile içinde)
             FireProjectile();
-            
+
             // Attack range içindeyken dur
             SetVelocity(0, rb.linearVelocity.y);
             isAttacking = true;
-            
+
             // Animasyon
             if (anim != null)
             {
@@ -198,13 +275,13 @@ public class Enemy : Entity
         }
         else
         {
-            // Attack range dışındaysa player'a doğru takip et
-            Vector2 directionToPlayer = (detectedPlayer.transform.position - transform.position).normalized;
-            
+            // Attack range dışındaysa hedefe doğru takip et
+            Vector2 directionToTarget = (target.position - transform.position).normalized;
+
             if (isGrounded && !isAttacking)
             {
-                SetVelocity(directionToPlayer.x * moveSpeed, rb.linearVelocity.y);
-                HandleFlip(directionToPlayer.x);
+                SetVelocity(directionToTarget.x * moveSpeed, rb.linearVelocity.y);
+                HandleFlip(directionToTarget.x);
             }
 
             isAttacking = false;
@@ -215,24 +292,34 @@ public class Enemy : Entity
     {
         if (projectilePrefab == null || firePoint == null) return;
         if (isDead) return;
-        
+
         // Cooldown kontrolü
         if (Time.time < lastAttackTime + attackCooldown) return;
 
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        
+
         Vector2 direction;
-        
+
         // Eğer kontrol ediliyorsa, önüne ateş et (facing direction)
         if (isControlled)
         {
             direction = Vector2.right * facingDirection;
         }
-        // Eğer kontrol edilmiyorsa, player'a doğru ateş et
+        // Eğer kontrol edilmiyorsa, hedefe doğru ateş et (player veya enemy)
         else
         {
-            direction = detectedPlayer != null 
-                ? (detectedPlayer.transform.position - firePoint.position).normalized 
+            Transform target = null;
+            if (detectedPlayer != null && !detectedPlayer.IsDead())
+            {
+                target = detectedPlayer.transform;
+            }
+            else if (detectedEnemy != null && !detectedEnemy.IsDead())
+            {
+                target = detectedEnemy.transform;
+            }
+
+            direction = target != null
+                ? (target.position - firePoint.position).normalized
                 : Vector2.right * facingDirection;
         }
 
@@ -260,7 +347,7 @@ public class Enemy : Entity
 
         // Cooldown'u güncelle
         lastAttackTime = Time.time;
-        
+
         // isAttacking flag'ini ayarla (UpdateAnimations'da animasyon bitince resetlenir)
         isAttacking = true;
     }
@@ -320,6 +407,7 @@ public class Enemy : Entity
         {
             // Kontrol edildiğinde AI durdur
             detectedPlayer = null;
+            detectedEnemy = null;
             SetVelocity(0, rb.linearVelocity.y);
         }
     }
@@ -331,39 +419,69 @@ public class Enemy : Entity
 
     public override void TakeDamage(int damage)
     {
-        // Hasar almadan önce player tespit et (arkası dönükken bile)
+        // Hasar almadan önce hedef tespit et (arkası dönükken bile)
         if (!isDead && !isControlled)
         {
-            // Player'ı ara (önünde olmasa bile)
-            Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(detectionPoint != null ? detectionPoint.position : transform.position, detectionRange * 2f, playerLayer);
-            
-            foreach (var col in nearbyColliders)
+            // Önce player'ı ara (önünde olmasa bile)
+            Collider2D[] nearbyPlayers = Physics2D.OverlapCircleAll(detectionPoint != null ? detectionPoint.position : transform.position, detectionRange * 2f, playerLayer);
+
+            foreach (var col in nearbyPlayers)
             {
                 PlayerController player = col.GetComponent<PlayerController>();
                 if (player != null && !player.IsDead())
                 {
                     // Hasar alınca player'ı tespit et ve ona dön
                     detectedPlayer = player;
+                    detectedEnemy = null;
                     Vector2 toPlayer = (player.transform.position - transform.position).normalized;
-                    
+
                     // Player'a dön
                     if (toPlayer.x > 0 && !facingRight) Flip();
                     else if (toPlayer.x < 0 && facingRight) Flip();
-                    
-                    break;
+
+                    // Hedef tespit edildi ama hasar vermeye devam et!
+                    break; // return yerine break kullan
+                }
+            }
+
+            // Player bulunamadıysa, farklı tipte enemy ara
+            if (detectedPlayer == null)
+            {
+                Collider2D[] nearbyEnemies = Physics2D.OverlapCircleAll(detectionPoint != null ? detectionPoint.position : transform.position, detectionRange * 2f, enemyLayer);
+                foreach (var col in nearbyEnemies)
+                {
+                    Enemy enemy = col.GetComponent<Enemy>();
+                    if (enemy != null && !enemy.IsDead() && enemy != this && !enemy.IsControlled())
+                    {
+                        if (enemy.GetEnemyType() != enemyType)
+                        {
+                            // Hasar alınca farklı tipte enemy'yi tespit et ve ona dön
+                            detectedEnemy = enemy;
+                            detectedPlayer = null;
+                            Vector2 toEnemy = (enemy.transform.position - transform.position).normalized;
+
+                            // Enemy'ye dön
+                            if (toEnemy.x > 0 && !facingRight) Flip();
+                            else if (toEnemy.x < 0 && facingRight) Flip();
+
+                            break; // return yerine break kullan
+                        }
+                    }
                 }
             }
         }
-        
+
+        // ÖNEMLİ: Her durumda hasar ver!
         base.TakeDamage(damage);
     }
 
     public override void Die()
     {
         base.Die();
-        
-        // Player detection'ı durdur
+
+        // Target detection'ı durdur
         detectedPlayer = null;
+        detectedEnemy = null;
         isControlled = false;
         controllingPlayer = null;
     }
@@ -401,15 +519,23 @@ public class Enemy : Entity
             Gizmos.DrawWireSphere(detectionPoint.position, attackRange);
         }
 
-        // Patrol range gizmo (mavi çember) - kaldırıldı
-        // Gizmos.color = Color.blue;
-        // Gizmos.DrawWireSphere(startPosition, patrolRange);
-
         // Detection ray gizmo (yeşil çizgi)
         if (detectionPoint != null)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(detectionPoint.position, detectionPoint.position + Vector3.right * facingDirection * detectionRange);
+        }
+
+        // Detected target gizmo (mavi çizgi)
+        if (detectedPlayer != null && !detectedPlayer.IsDead())
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, detectedPlayer.transform.position);
+        }
+        else if (detectedEnemy != null && !detectedEnemy.IsDead())
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(transform.position, detectedEnemy.transform.position);
         }
     }
 }
