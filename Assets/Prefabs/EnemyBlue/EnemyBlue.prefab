@@ -523,7 +523,7 @@ MonoBehaviour:
   detectionPoint: {fileID: 5955686043351748415}
   projectilePrefab: {fileID: 4636703386100314661, guid: 5b000a9be11e19344bded935ade2dbd8, type: 3}
   firePoint: {fileID: 3074174146191038724}
-  projectileSpeed: 150
+  projectileSpeed: 20
   attackCooldown: 1
   attachmentPoint: {fileID: 0}
   enemyType: 2

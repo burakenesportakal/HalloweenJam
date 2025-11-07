@@ -184,6 +184,7 @@ GameObject:
   - component: {fileID: 5916341888523597015}
   - component: {fileID: 5533757192951378052}
   - component: {fileID: 377316247662244764}
+  - component: {fileID: 8905141754009208701}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -317,7 +318,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 98
   m_Sprite: {fileID: 3580673912896381728, guid: 106e0ad30845ee941ba554bf40c77dbd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -363,7 +364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d75a32ddd17aad4a929417651cfe303, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 200
   currentHealth: 0
   damageFlashMaterial: {fileID: 0}
   damageFlashDuration: 0.1
@@ -386,6 +387,20 @@ MonoBehaviour:
   carryCheckRadius: 0.46
   hiddenTag: Hide
   hiddenLayer: 8
+--- !u!114 &8905141754009208701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4130673383603735382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51ad75afe01f41f44814807499150e40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTag: Player
+  keycardCount: 0
 --- !u!1 &5833304788037361618
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,7 +417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7283752370623726123
 Transform:
   m_ObjectHideFlags: 0

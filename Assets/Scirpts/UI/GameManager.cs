@@ -221,10 +221,17 @@ namespace HalloweenJam.UI
             CurrentState = GameState.GameOver;
             Time.timeScale = 1f;
 
-            Debug.Log("Game Won! Loading outro scene...");
+            Debug.Log($"Game Won! Loading outro scene... Outro Scene Index = {outroSceneIndex}");
 
             // Outro sahnesine geç
-            SceneManager.LoadScene(outroSceneIndex);
+            if (outroSceneIndex >= 0 && outroSceneIndex < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(outroSceneIndex);
+            }
+            else
+            {
+                Debug.LogError($"GameManager: Outro Scene Index ({outroSceneIndex}) geçersiz! Build Settings'te outro sahnesi ekli mi?");
+            }
         }
 
         /// <summary>

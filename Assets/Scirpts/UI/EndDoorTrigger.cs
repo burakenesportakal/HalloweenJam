@@ -10,7 +10,10 @@ namespace HalloweenJam.UI
     {
         [Header("Settings")]
         [SerializeField] private string playerTag = "Player";
-        [SerializeField] private bool closeGame = false; // True = Oyunu kapat, False = Outro sahnesine geç
+        [SerializeField] private bool closeGame = false; // True = Oyunu kapat, False = Outro sahnesine geç (varsayılan: False = Outro'ya git)
+
+        [Header("Transition (Opsiyonel)")]
+        [SerializeField] private GameToOutroTransition transition; // Transition script referansı
 
         private bool hasTriggered = false;
 
@@ -38,11 +41,12 @@ namespace HalloweenJam.UI
 
         private void OnPlayerReachedDoor()
         {
-            Debug.Log("End door reached!");
+            Debug.Log("End door reached! Close Game = " + closeGame);
 
             if (closeGame)
             {
                 // Oyunu kapat
+                Debug.Log("Closing game...");
                 #if UNITY_EDITOR
                     UnityEditor.EditorApplication.isPlaying = false;
                 #else
@@ -51,14 +55,24 @@ namespace HalloweenJam.UI
             }
             else
             {
-                // Outro sahnesine geç
-                if (GameManager.Instance != null)
+                // Transition varsa onu kullan, yoksa direkt outro'ya geç
+                if (transition != null)
                 {
-                    GameManager.Instance.WinGame();
+                    Debug.Log("Starting transition to outro...");
+                    transition.StartTransition();
                 }
                 else
                 {
-                    Debug.LogError("EndDoorTrigger: GameManager bulunamadı!");
+                    // Transition yok, direkt outro'ya geç
+                    if (GameManager.Instance != null)
+                    {
+                        Debug.Log("Calling GameManager.WinGame()...");
+                        GameManager.Instance.WinGame();
+                    }
+                    else
+                    {
+                        Debug.LogError("EndDoorTrigger: GameManager.Instance bulunamadı! Oyun sahnesinde GameManager var mı?");
+                    }
                 }
             }
         }
